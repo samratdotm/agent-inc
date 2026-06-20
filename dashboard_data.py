@@ -41,7 +41,7 @@ RL_TARGET = 0.5
 def load_calibration() -> dict[str, Any]:
     """The raw Phase-1 calibration blob (real data), or an empty shell if absent."""
     if CALIBRATION.exists():
-        return json.loads(CALIBRATION.read_text())
+        return json.loads(CALIBRATION.read_text(encoding="utf-8"))
     return {"leaderboard": [], "note": "results/calibration.json not found"}
 
 
@@ -97,7 +97,7 @@ def _scenario_meta() -> dict[str, dict[str, str]]:
     meta: dict[str, dict[str, str]] = {}
     for p in sorted(SCENARIOS_DIR.glob("*.json")):
         try:
-            s = json.loads(p.read_text())
+            s = json.loads(p.read_text(encoding="utf-8"))
         except (ValueError, OSError):
             continue
         meta[s.get("id", p.stem)] = {
@@ -125,7 +125,7 @@ def load_runs() -> list[dict[str, Any]]:
     """
     if not RUNS_FILE.exists():
         return []
-    raw = json.loads(RUNS_FILE.read_text())
+    raw = json.loads(RUNS_FILE.read_text(encoding="utf-8"))
     meta = _scenario_meta()
     source = raw.get("source", RUNS_FILE.name)
     rows: list[dict[str, Any]] = []

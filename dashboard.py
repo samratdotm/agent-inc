@@ -69,12 +69,15 @@ if not tc["points"]:
 else:
     runway_col, note_col = st.columns([2, 1])
     with runway_col:
-        curve = pd.DataFrame(tc["points"]).set_index("label")["reward"]
-        curve_df = curve.to_frame("Qwen reward")
-        curve_df["RL target"] = tc["target"]
+        # bars read clearly even with just the base point; becomes a before/after
+        # story once a trained "Qwen + RL" number lands.
+        bars: dict[str, float] = {"Qwen base": tc["points"][0]["reward"]}
+        if tc["has_after"]:
+            bars["Qwen + RL"] = tc["points"][-1]["reward"]
+        bars["RL target"] = tc["target"]
         if tc["frontier_ceiling"] is not None:
-            curve_df["Claude (frontier)"] = tc["frontier_ceiling"]
-        st.line_chart(curve_df, height=320)
+            bars["Claude (ceiling)"] = tc["frontier_ceiling"]
+        st.bar_chart(pd.DataFrame({"reward": bars}), height=320)
     with note_col:
         base = tc["points"][0]["reward"]
         st.metric("Qwen base", f"{base:.3f}")
