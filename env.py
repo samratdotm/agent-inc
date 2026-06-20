@@ -264,12 +264,14 @@ async def research_company(name: str, website: str = "") -> dict[str, Any]:
         "funding": "Funding stage and notable investors, if known",
         "sources": "List of source URLs the research is based on",
     }
-    target = f"{name} ({website})" if website else name
+    target_company = {"company_name": name}
+    if website:
+        target_company["website"] = website
     async with httpx.AsyncClient(timeout=900.0) as client:
         r = await client.post(
             "https://api.sixtyfour.ai/company-intelligence",
             headers={"x-api-key": key, "Content-Type": "application/json"},
-            json={"target_company": target, "struct": struct, "tier": "micro"},
+            json={"target_company": target_company, "struct": struct, "tier": "micro"},
         )
         if r.status_code >= 400:
             return {"company": name, "error": f"Sixtyfour returned {r.status_code}"}
