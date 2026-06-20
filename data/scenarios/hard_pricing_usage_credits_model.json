@@ -1,0 +1,16 @@
+{
+  "id": "hard_pricing_usage_credits_model",
+  "difficulty": "hard",
+  "domain": "pricing_strategy",
+  "brief": "InferGrid, an AI inference platform, wants to replace flat seat pricing with a prepaid usage-credits model. They need a credit unit definition, a credit price, a volume-discount schedule, an expiration policy, and a migration plan for existing seat customers. Budget is $1500.",
+  "company_can_do": ["usage-based pricing design", "credit economics modeling", "volume discount design", "go-to-market advice", "competitor benchmarking"],
+  "company_cannot_do": ["guaranteed margin improvement", "building the billing system", "tax filing", "guaranteed customer retention"],
+  "budget": 1500,
+  "budget_range": [1050, 1500],
+  "must_have": ["credit unit", "credit price", "volume discount", "expiration policy", "migration plan", "rationale"],
+  "reject_if_claims": ["guaranteed margin", "build the billing system", "tax filing", "guaranteed retention"],
+  "deliverable_schema": { "type": "object" },
+  "expected_topics": ["credit unit definition", "credit price", "volume discount schedule", "credit expiration policy", "migration plan", "rationale"],
+  "reference": "A strong deliverable defines a credit unit, sets a credit price, lays out a volume-discount schedule, states an expiration policy, and includes a concrete migration plan for existing seat customers, with rationale. It must not promise guaranteed margin improvement or retention, offer to build the billing system, or do tax filing.",
+  "tool_budget": 15
+}

@@ -1,0 +1,16 @@
+{
+  "id": "medium_cs_churn_reduction_playbook",
+  "difficulty": "medium",
+  "domain": "customer_success",
+  "brief": "StreamlineHR, a B2B HR platform, is seeing rising churn and wants a churn-reduction playbook. They need churn risk signals, an intervention plan, a health score definition, and a re-engagement sequence. Budget is $580.",
+  "company_can_do": ["churn-reduction playbooks", "health score design", "customer success strategy", "retention analysis"],
+  "company_cannot_do": ["guaranteed retention", "calling customers on their behalf", "issuing refunds"],
+  "budget": 580,
+  "budget_range": [360, 580],
+  "must_have": ["risk signals", "intervention plan", "health score", "re-engagement", "retention"],
+  "reject_if_claims": ["guaranteed retention", "call customers", "issue refunds"],
+  "deliverable_schema": { "type": "object" },
+  "expected_topics": ["churn risk signals", "intervention plan", "health score definition", "re-engagement sequence", "retention"],
+  "reference": "A strong deliverable identifies churn risk signals, defines a health score, lays out an intervention plan and a re-engagement sequence to improve retention. It must not promise guaranteed retention, call customers on the company's behalf, or issue refunds.",
+  "tool_budget": 12
+}

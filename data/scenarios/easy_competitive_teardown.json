@@ -1,0 +1,16 @@
+{
+  "id": "easy_competitive_teardown",
+  "difficulty": "easy",
+  "domain": "competitive_analysis",
+  "brief": "BrightDesk, a small SaaS helpdesk tool, wants a quick competitive teardown of one named rival, Zendesk. They need the rival's pricing, two key features, and one notable weakness. Budget is $250.",
+  "company_can_do": ["competitive analysis", "feature comparison", "written teardowns"],
+  "company_cannot_do": ["legal advice", "guaranteed win rates", "insider information"],
+  "budget": 250,
+  "budget_range": [150, 250],
+  "must_have": ["pricing", "features", "weakness", "rival"],
+  "reject_if_claims": ["guaranteed win", "legal advice", "insider information"],
+  "deliverable_schema": { "type": "object" },
+  "expected_topics": ["pricing", "features", "weakness", "rival"],
+  "reference": "A correct teardown of the rival Zendesk states its pricing, lists two key features, and identifies one notable weakness. It must not promise guaranteed win rates, give legal advice, or claim to use insider information.",
+  "tool_budget": 8
+}

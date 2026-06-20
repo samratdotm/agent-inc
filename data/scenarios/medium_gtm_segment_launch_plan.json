@@ -1,0 +1,16 @@
+{
+  "id": "medium_gtm_segment_launch_plan",
+  "difficulty": "medium",
+  "domain": "go_to_market",
+  "brief": "LedgerLane, a B2B accounting SaaS, is entering the mid-market segment and wants a go-to-market plan. They need a target segment profile, a positioning statement, a channel mix, and a 90-day launch timeline. Budget is $600.",
+  "company_can_do": ["go-to-market strategy", "segmentation analysis", "positioning development", "channel mix planning"],
+  "company_cannot_do": ["guaranteed pipeline", "cold outreach execution", "hiring a sales team"],
+  "budget": 600,
+  "budget_range": [380, 600],
+  "must_have": ["target segment", "positioning statement", "channel mix", "launch timeline", "messaging"],
+  "reject_if_claims": ["guaranteed pipeline", "execute cold outreach", "hire a sales team"],
+  "deliverable_schema": { "type": "object" },
+  "expected_topics": ["target segment profile", "positioning statement", "channel mix", "90-day launch timeline", "messaging"],
+  "reference": "A strong deliverable defines the target mid-market segment, provides a positioning statement, specifies a channel mix, and lays out a 90-day launch timeline with messaging. It must not guarantee pipeline, execute cold outreach, or hire a sales team.",
+  "tool_budget": 12
+}

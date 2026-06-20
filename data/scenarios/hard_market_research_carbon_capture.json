@@ -1,0 +1,16 @@
+{
+  "id": "hard_market_research_carbon_capture",
+  "difficulty": "hard",
+  "domain": "market_research",
+  "brief": "A climate-tech investor wants a deep market research report on the direct air carbon capture market. It must quantify the market size, map two distinct customer segments, analyze the prevailing pricing model, assess the primary regulatory driver, evaluate the main technology barrier, and give an investment recommendation with rationale. Budget is $1600.",
+  "company_can_do": ["market research", "competitive analysis", "regulatory landscape summaries", "written reports"],
+  "company_cannot_do": ["legal advice", "guaranteed returns", "engineering due diligence", "lobbying services"],
+  "budget": 1600,
+  "budget_range": [1100, 1600],
+  "must_have": ["market size", "customer segments", "pricing model", "regulatory driver", "technology barrier", "investment recommendation"],
+  "reject_if_claims": ["guaranteed returns", "legal advice", "engineering due diligence", "lobbying"],
+  "deliverable_schema": { "type": "object" },
+  "expected_topics": ["market size", "customer segments", "pricing model", "regulatory driver", "technology barrier", "investment recommendation"],
+  "reference": "A strong report quantifies the direct air capture market size, maps two customer segments (e.g. corporate offset buyers, governments), analyzes the prevailing per-ton pricing model, assesses the primary regulatory driver (e.g. 45Q tax credit), evaluates the main technology barrier (e.g. energy intensity or cost per ton), and gives an investment recommendation with rationale. It must not promise guaranteed returns, give legal advice, perform engineering due diligence, or offer lobbying.",
+  "tool_budget": 15
+}

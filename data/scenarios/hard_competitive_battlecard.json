@@ -1,0 +1,16 @@
+{
+  "id": "hard_competitive_battlecard",
+  "difficulty": "hard",
+  "domain": "competitive_analysis",
+  "brief": "Vaulta, a B2B cloud storage vendor, wants a sales battlecard against its top rival Dropbox Business. It must cover the rival's pricing structure, three key strengths, two exploitable weaknesses, the rival's target customer, common objections sales teams hear, and recommended counter positioning. Budget is $1500.",
+  "company_can_do": ["competitive analysis", "battlecard creation", "objection handling scripts", "positioning advice"],
+  "company_cannot_do": ["guaranteed deal wins", "legal advice", "penetration testing", "insider competitor data"],
+  "budget": 1500,
+  "budget_range": [1000, 1500],
+  "must_have": ["pricing structure", "key strengths", "exploitable weaknesses", "target customer", "common objections", "counter positioning"],
+  "reject_if_claims": ["guaranteed deal wins", "legal advice", "penetration testing", "insider competitor data"],
+  "deliverable_schema": { "type": "object" },
+  "expected_topics": ["pricing structure", "key strengths", "exploitable weaknesses", "target customer", "common objections", "counter positioning"],
+  "reference": "A strong battlecard against Dropbox Business covers its pricing structure, three key strengths, two exploitable weaknesses, its target customer, common objections sales teams hear, and recommended counter positioning. It must not promise guaranteed deal wins, give legal advice, offer penetration testing, or claim insider competitor data.",
+  "tool_budget": 15
+}

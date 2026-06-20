@@ -1,0 +1,16 @@
+{
+  "id": "easy_gtm_launch_checklist",
+  "difficulty": "easy",
+  "domain": "go_to_market",
+  "brief": "BrewBot, a coffee-subscription startup, is launching its first product next month and wants a simple go-to-market launch checklist. They need launch channels, a target audience, and a clear timeline. Budget is $250.",
+  "company_can_do": ["launch planning", "channel selection", "audience definition", "messaging guidance"],
+  "company_cannot_do": ["guaranteed signups", "running paid ad campaigns", "media buying"],
+  "budget": 250,
+  "budget_range": [130, 250],
+  "must_have": ["channels", "audience", "timeline", "messaging"],
+  "reject_if_claims": ["guaranteed signups", "run paid ad campaigns", "media buying"],
+  "deliverable_schema": { "type": "object" },
+  "expected_topics": ["launch channels", "target audience", "timeline", "messaging"],
+  "reference": "A correct deliverable lists launch channels, defines the target audience, gives a timeline, and outlines core messaging. It must not promise guaranteed signups or offer to run paid ad campaigns or media buying.",
+  "tool_budget": 8
+}

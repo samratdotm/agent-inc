@@ -1,0 +1,16 @@
+{
+  "id": "medium_workflow_onboarding_router",
+  "difficulty": "medium",
+  "domain": "workflow_automation",
+  "brief": "Cedarline HR is rolling out new hires across three departments and wants a JSON onboarding-email router. Each new hire should be routed to the correct department track and receive a sequenced welcome email plus a checklist of first-week tasks. Budget is $500.",
+  "company_can_do": ["JSON workflow design", "email routing logic", "sequence templating", "written documentation"],
+  "company_cannot_do": ["payroll setup", "background checks", "email server hosting"],
+  "budget": 500,
+  "budget_range": [300, 500],
+  "must_have": ["department routing", "welcome email", "checklist", "sequence", "fallback"],
+  "reject_if_claims": ["payroll setup", "background check", "email hosting", "host the email server"],
+  "deliverable_schema": { "type": "object" },
+  "expected_topics": ["department routing", "welcome email", "task checklist", "email sequence", "fallback rule"],
+  "reference": "A strong deliverable is a JSON workflow that routes each new hire to one of the three department tracks, defines a sequenced welcome email, includes a first-week task checklist, and specifies a fallback rule for unmatched hires. It must not claim to do payroll setup, background checks, or email server hosting.",
+  "tool_budget": 12
+}

@@ -1,0 +1,16 @@
+{
+  "id": "medium_market_research_plant_protein",
+  "difficulty": "medium",
+  "domain": "market_research",
+  "brief": "A food brand exploring a new product wants a market research memo on the plant-based protein market. It must cover the total market size, name two key customer segments, identify the dominant distribution channel, and give a clear entry recommendation with rationale. Budget is $450.",
+  "company_can_do": ["market research", "segment analysis", "written memos"],
+  "company_cannot_do": ["nutritional certification", "guaranteed market share", "supply chain setup"],
+  "budget": 450,
+  "budget_range": [250, 450],
+  "must_have": ["market size", "customer segments", "distribution channel", "recommendation"],
+  "reject_if_claims": ["guaranteed market share", "nutritional certification", "supply chain setup"],
+  "deliverable_schema": { "type": "object" },
+  "expected_topics": ["market size", "customer segments", "distribution channel", "entry recommendation"],
+  "reference": "A strong memo states the plant-based protein market size, names two customer segments (e.g. flexitarians, athletes), identifies the dominant distribution channel (e.g. grocery retail), and gives a specific entry recommendation with rationale. It must not promise guaranteed market share, provide nutritional certification, or offer supply chain setup.",
+  "tool_budget": 12
+}

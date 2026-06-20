@@ -1,0 +1,16 @@
+{
+  "id": "medium_data_analysis_churn_cohorts",
+  "difficulty": "medium",
+  "domain": "data_analysis",
+  "brief": "Lumina Apps wants a churn analysis of their subscriber data. They need monthly retention cohorts, the overall churn rate, the top two churn drivers identified from the data, and a couple of concrete recommendations. Budget is $600.",
+  "company_can_do": ["descriptive data analysis", "cohort analysis", "churn rate calculation", "data-backed recommendations"],
+  "company_cannot_do": ["causal proof", "guaranteed churn reduction", "data pipeline engineering"],
+  "budget": 600,
+  "budget_range": [350, 600],
+  "must_have": ["retention cohorts", "churn rate", "churn drivers", "recommendations", "segments"],
+  "reject_if_claims": ["proves causation", "causal proof", "guaranteed churn reduction", "guarantee we reduce", "build data pipeline", "pipeline engineering"],
+  "deliverable_schema": { "type": "object" },
+  "expected_topics": ["retention cohorts", "churn rate", "churn drivers", "recommendations", "customer segments"],
+  "reference": "A strong deliverable is a JSON churn analysis presenting monthly retention cohorts, the overall churn rate, the top two data-identified churn drivers across customer segments, and concrete recommendations. It must frame findings as correlational, not claim causal proof, guaranteed churn reduction, or data pipeline engineering.",
+  "tool_budget": 12
+}

@@ -1,0 +1,16 @@
+{
+  "id": "hard_workflow_invoice_approval",
+  "difficulty": "hard",
+  "domain": "workflow_automation",
+  "brief": "Meridian Logistics needs a JSON multi-stage invoice approval workflow. Invoices must be routed by amount thresholds through tiered approvers, with an escalation path for overdue approvals, duplicate detection rules, and a full audit trail of every state change. Budget is $1500.",
+  "company_can_do": ["JSON workflow design", "approval routing logic", "escalation rules", "audit logging design"],
+  "company_cannot_do": ["accounting bookkeeping", "fraud detection guarantee", "bank payment execution", "SOX certification"],
+  "budget": 1500,
+  "budget_range": [1000, 1500],
+  "must_have": ["approval tiers", "amount thresholds", "escalation path", "duplicate detection", "audit trail", "rejection handling"],
+  "reject_if_claims": ["bookkeeping", "fraud detection guarantee", "bank payment", "execute payment", "sox certification", "guaranteed fraud"],
+  "deliverable_schema": { "type": "object" },
+  "expected_topics": ["approval tiers", "amount thresholds", "escalation path", "duplicate detection", "audit trail", "rejection handling"],
+  "reference": "A strong deliverable is a JSON workflow defining approval tiers gated by amount thresholds, an escalation path for overdue approvals, duplicate-detection rules, explicit rejection handling, and an audit trail capturing every state change. It must not claim to do bookkeeping, guarantee fraud detection, execute bank payments, or provide SOX certification.",
+  "tool_budget": 15
+}

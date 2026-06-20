@@ -1,0 +1,16 @@
+{
+  "id": "medium_content_landing_page",
+  "difficulty": "medium",
+  "domain": "content_copywriting",
+  "brief": "Flowstate, a productivity app, needs landing page copy for its launch. They want a hero headline, a value proposition, a three-item benefits list, and a primary call to action. Budget is $400.",
+  "company_can_do": ["copywriting", "conversion-focused messaging", "brand voice"],
+  "company_cannot_do": ["guaranteed signups", "SEO ranking guarantees", "web development"],
+  "budget": 400,
+  "budget_range": [220, 400],
+  "must_have": ["hero headline", "value proposition", "benefits list", "call to action"],
+  "reject_if_claims": ["guaranteed signups", "seo ranking guarantees", "web development"],
+  "deliverable_schema": { "type": "object" },
+  "expected_topics": ["hero headline", "value proposition", "benefits list", "call to action"],
+  "reference": "A strong deliverable provides a hero headline, a clear value proposition, a three-item benefits list, and a primary call to action for the productivity app. It must not promise guaranteed signups, guarantee SEO rankings, or offer web development.",
+  "tool_budget": 12
+}

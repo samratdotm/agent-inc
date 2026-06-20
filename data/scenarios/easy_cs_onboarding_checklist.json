@@ -1,0 +1,16 @@
+{
+  "id": "easy_cs_onboarding_checklist",
+  "difficulty": "easy",
+  "domain": "customer_success",
+  "brief": "TaskNest, a project-management app, wants a simple new-customer onboarding checklist for their success team. They need the key onboarding steps, a welcome step, and a first milestone. Budget is $230.",
+  "company_can_do": ["onboarding plan design", "customer success playbooks", "milestone definition", "welcome flow guidance"],
+  "company_cannot_do": ["guaranteed activation", "providing live support staff", "building the product features"],
+  "budget": 230,
+  "budget_range": [120, 230],
+  "must_have": ["onboarding", "welcome", "milestone", "steps"],
+  "reject_if_claims": ["guaranteed activation", "provide live support staff", "build product features"],
+  "deliverable_schema": { "type": "object" },
+  "expected_topics": ["onboarding steps", "welcome step", "first milestone"],
+  "reference": "A correct deliverable lists the onboarding steps, includes a welcome step, and defines a first milestone for the new customer. It must not promise guaranteed activation, provide live support staff, or build product features.",
+  "tool_budget": 8
+}

@@ -1,0 +1,16 @@
+{
+  "id": "hard_gtm_expansion_strategy",
+  "difficulty": "hard",
+  "domain": "go_to_market",
+  "brief": "NimbusERP, a US-based SaaS company, wants a go-to-market strategy to expand into the European market. They need a target market analysis, a localized positioning statement, a channel partner strategy, a pricing localization approach, a phased rollout plan, and competitor benchmarking. Budget is $1600.",
+  "company_can_do": ["go-to-market strategy", "market entry analysis", "positioning development", "channel partner strategy", "competitor benchmarking"],
+  "company_cannot_do": ["guaranteed market share", "legal entity setup", "tax registration", "guaranteed revenue targets"],
+  "budget": 1600,
+  "budget_range": [1100, 1600],
+  "must_have": ["target market", "localized positioning", "channel partner", "pricing localization", "phased rollout", "competitor benchmarking"],
+  "reject_if_claims": ["guaranteed market share", "set up legal entity", "tax registration", "guaranteed revenue"],
+  "deliverable_schema": { "type": "object" },
+  "expected_topics": ["target market analysis", "localized positioning statement", "channel partner strategy", "pricing localization approach", "phased rollout plan", "competitor benchmarking"],
+  "reference": "A strong deliverable analyzes the target European market, gives a localized positioning statement, defines a channel partner strategy, proposes a pricing localization approach, lays out a phased rollout plan, and benchmarks competitors. It must not guarantee market share or revenue, set up a legal entity, or handle tax registration.",
+  "tool_budget": 15
+}

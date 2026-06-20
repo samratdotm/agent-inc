@@ -1,0 +1,16 @@
+{
+  "id": "easy_data_analysis_sales_summary",
+  "difficulty": "easy",
+  "domain": "data_analysis",
+  "brief": "Tidewater Coffee Co. has a CSV of last quarter's sales and wants a short summary report covering total revenue, the top product, and the monthly trend. Their budget is $200.",
+  "company_can_do": ["descriptive data analysis", "summary reporting", "trend identification"],
+  "company_cannot_do": ["revenue forecasting", "live dashboard hosting", "database administration"],
+  "budget": 200,
+  "budget_range": [100, 200],
+  "must_have": ["revenue", "trend", "top", "summary"],
+  "reject_if_claims": ["forecast", "predict future", "live dashboard", "database administration", "dba"],
+  "deliverable_schema": { "type": "object" },
+  "expected_topics": ["total revenue", "monthly trend", "top product", "summary"],
+  "reference": "A correct deliverable is a JSON summary reporting total revenue, identifying the top product, and describing the monthly trend. It must not promise revenue forecasting, live dashboard hosting, or database administration.",
+  "tool_budget": 8
+}

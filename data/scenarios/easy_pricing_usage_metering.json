@@ -1,0 +1,16 @@
+{
+  "id": "easy_pricing_usage_metering",
+  "difficulty": "easy",
+  "domain": "pricing_strategy",
+  "brief": "MeterFlow, an API company, wants a simple usage-based pricing page for their new endpoint. They need a per-call price, a free quota, and an overage rate explained in plain language. Budget is $250.",
+  "company_can_do": ["usage-based pricing design", "pricing page copy", "competitor price benchmarking", "free-tier sizing"],
+  "company_cannot_do": ["guaranteed revenue", "implementing the metering system", "negotiating with customers"],
+  "budget": 250,
+  "budget_range": [150, 250],
+  "must_have": ["price", "quota", "overage", "free"],
+  "reject_if_claims": ["guaranteed revenue", "implement the metering", "negotiate with customers"],
+  "deliverable_schema": { "type": "object" },
+  "expected_topics": ["per-call price", "free quota", "overage rate", "free tier"],
+  "reference": "A correct deliverable states a per-call price, a free monthly quota, and an overage rate for usage beyond the free tier, written in plain customer-facing language. It must not promise guaranteed revenue, offer to build the metering system, or negotiate with customers.",
+  "tool_budget": 8
+}

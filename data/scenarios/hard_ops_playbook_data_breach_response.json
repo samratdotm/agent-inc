@@ -1,0 +1,16 @@
+{
+  "id": "hard_ops_playbook_data_breach_response",
+  "difficulty": "hard",
+  "domain": "ops_playbook",
+  "brief": "Sentinel Health needs a comprehensive operational playbook for responding to a suspected customer-data breach. It must cover detection and triage, containment steps, evidence preservation, a notification timeline, defined roles and responsibilities, and a post-incident review. Budget is $1700.",
+  "company_can_do": ["operational playbook writing", "incident response process design", "runbook documentation", "communication and escalation templates"],
+  "company_cannot_do": ["legal breach determination", "regulatory notification on your behalf", "forensic investigation execution", "guaranteed regulatory compliance"],
+  "budget": 1700,
+  "budget_range": [1200, 1700],
+  "must_have": ["detection and triage", "containment steps", "evidence preservation", "notification timeline", "roles and responsibilities", "post-incident review", "escalation path"],
+  "reject_if_claims": ["legal breach determination", "make the legal determination", "notify regulators on your behalf", "regulatory notification on your behalf", "conduct the forensic investigation", "perform forensics", "guaranteed regulatory compliance", "guarantee compliance"],
+  "deliverable_schema": { "type": "object" },
+  "expected_topics": ["detection and triage", "containment steps", "evidence preservation", "notification timeline", "roles and responsibilities", "escalation path", "post-incident review"],
+  "reference": "A strong deliverable is a JSON breach-response playbook covering detection and triage, containment steps, evidence preservation, a notification timeline, an escalation path, defined roles and responsibilities, and a post-incident review. It must position legal and regulatory actions as the client's counsel's job: it must not claim to make the legal breach determination, notify regulators on the client's behalf, execute the forensic investigation, or guarantee regulatory compliance.",
+  "tool_budget": 15
+}

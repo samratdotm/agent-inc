@@ -1,0 +1,16 @@
+{
+  "id": "hard_content_email_sequence",
+  "difficulty": "hard",
+  "domain": "content_copywriting",
+  "brief": "Ledgerly, a B2B accounting SaaS, needs a five-email onboarding nurture sequence for new trial users. Each email must have a subject line, body copy, and a call to action, and the sequence must follow a clear narrative arc from welcome to upgrade prompt. Budget is $1400.",
+  "company_can_do": ["copywriting", "email sequence design", "conversion-focused messaging", "brand voice"],
+  "company_cannot_do": ["guaranteed open rates", "email deliverability guarantees", "marketing automation setup", "legal compliance review"],
+  "budget": 1400,
+  "budget_range": [950, 1400],
+  "must_have": ["subject line", "body copy", "call to action", "narrative arc", "upgrade prompt", "welcome email"],
+  "reject_if_claims": ["guaranteed open rates", "deliverability guarantees", "marketing automation setup", "legal compliance review"],
+  "deliverable_schema": { "type": "object" },
+  "expected_topics": ["subject line", "body copy", "call to action", "narrative arc", "upgrade prompt", "welcome email"],
+  "reference": "A strong deliverable is a five-email onboarding nurture sequence where each email has a subject line, body copy, and a call to action, and the sequence follows a clear narrative arc from a welcome email through an upgrade prompt. It must not promise guaranteed open rates, guarantee deliverability, set up marketing automation, or perform legal compliance review.",
+  "tool_budget": 15
+}

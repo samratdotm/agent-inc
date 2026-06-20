@@ -1,0 +1,16 @@
+{
+  "id": "medium_pricing_marketplace_takerate",
+  "difficulty": "medium",
+  "domain": "pricing_strategy",
+  "brief": "HandyHive, a two-sided marketplace for home services, wants to set its take rate. They need a recommended commission percentage, how it splits between buyer fee and seller fee, and a competitor benchmark to justify the number. Budget is $550.",
+  "company_can_do": ["marketplace pricing strategy", "take rate benchmarking", "fee structure design", "unit economics analysis"],
+  "company_cannot_do": ["guaranteed transaction volume", "payment processing integration", "setting partner contracts"],
+  "budget": 550,
+  "budget_range": [350, 550],
+  "must_have": ["take rate", "buyer fee", "seller fee", "commission", "benchmark"],
+  "reject_if_claims": ["guaranteed transaction volume", "integrate payment processing", "set partner contracts"],
+  "deliverable_schema": { "type": "object" },
+  "expected_topics": ["take rate", "buyer fee split", "seller fee split", "commission percentage", "competitor benchmark"],
+  "reference": "A strong deliverable recommends a commission take rate, explains how it splits into a buyer fee and a seller fee, and cites a competitor benchmark to justify the number. It must not guarantee transaction volume, offer payment processing integration, or set partner contracts.",
+  "tool_budget": 12
+}

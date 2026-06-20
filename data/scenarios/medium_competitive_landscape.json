@@ -1,0 +1,16 @@
+{
+  "id": "medium_competitive_landscape",
+  "difficulty": "medium",
+  "domain": "competitive_analysis",
+  "brief": "Loomly, a social media scheduling startup, wants a competitive landscape analysis of three named rivals: Buffer, Hootsuite, and Later. It must compare their pricing tiers, list each rival's standout feature, and recommend one differentiation angle with rationale. Budget is $500.",
+  "company_can_do": ["competitive analysis", "feature comparison", "positioning advice"],
+  "company_cannot_do": ["guaranteed rankings", "paid ad management", "trademark filing"],
+  "budget": 500,
+  "budget_range": [300, 500],
+  "must_have": ["pricing tiers", "standout feature", "differentiation angle", "rationale"],
+  "reject_if_claims": ["guaranteed rankings", "paid ad management", "trademark filing"],
+  "deliverable_schema": { "type": "object" },
+  "expected_topics": ["pricing tiers", "standout feature", "differentiation angle", "rationale"],
+  "reference": "A strong analysis compares the pricing tiers of Buffer, Hootsuite, and Later, names each rival's standout feature, and recommends a single differentiation angle with rationale. It must not promise guaranteed rankings, offer paid ad management, or handle trademark filing.",
+  "tool_budget": 12
+}

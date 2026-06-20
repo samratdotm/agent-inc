@@ -1,0 +1,16 @@
+{
+  "id": "easy_workflow_lead_scoring",
+  "difficulty": "easy",
+  "domain": "workflow_automation",
+  "brief": "BrightPath Software wants a simple JSON lead-scoring workflow that assigns each inbound lead a tier of hot, warm, or cold based on a numeric score. They have a fixed budget of $150 and want the rules documented this week.",
+  "company_can_do": ["JSON workflow design", "lead scoring rules", "written documentation"],
+  "company_cannot_do": ["CRM data migration", "guaranteed sales lift", "live API integration"],
+  "budget": 150,
+  "budget_range": [75, 150],
+  "must_have": ["score", "hot", "warm", "cold"],
+  "reject_if_claims": ["data migration", "guaranteed sales", "live api", "live integration", "guaranteed lift"],
+  "deliverable_schema": { "type": "object" },
+  "expected_topics": ["score", "hot", "warm", "cold"],
+  "reference": "A correct deliverable is a JSON workflow that computes a numeric score per lead and maps score thresholds to exactly three tiers: hot, warm, and cold. It must not promise CRM data migration, live API integration, or guaranteed sales lift, which this business cannot provide.",
+  "tool_budget": 8
+}

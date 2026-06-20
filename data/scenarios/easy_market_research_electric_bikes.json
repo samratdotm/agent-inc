@@ -1,0 +1,16 @@
+{
+  "id": "easy_market_research_electric_bikes",
+  "difficulty": "easy",
+  "domain": "market_research",
+  "brief": "PedalPlus, a hardware startup, wants a short market research brief on the consumer electric bike market in the United States. They need the current market size, the main growth driver, and the leading customer segment. Budget is $200.",
+  "company_can_do": ["market research", "trend summaries", "written briefs"],
+  "company_cannot_do": ["legal advice", "guaranteed sales", "manufacturing support"],
+  "budget": 200,
+  "budget_range": [100, 200],
+  "must_have": ["market", "growth", "segment", "demand"],
+  "reject_if_claims": ["guaranteed sales", "legal advice", "manufacturing"],
+  "deliverable_schema": { "type": "object" },
+  "expected_topics": ["market size", "growth", "customer segment", "demand"],
+  "reference": "A correct brief states the U.S. electric bike market size, identifies the main growth driver, names the leading customer segment, and describes demand trends. It must not promise guaranteed sales, offer legal advice, or claim manufacturing support.",
+  "tool_budget": 8
+}

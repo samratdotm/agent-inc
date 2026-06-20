@@ -1,0 +1,16 @@
+{
+  "id": "hard_data_analysis_ab_test_readout",
+  "difficulty": "hard",
+  "domain": "data_analysis",
+  "brief": "Vantage Commerce ran an A/B test on a new checkout flow and needs a rigorous readout. They want effect size with confidence intervals, statistical significance assessment, a sample size and power check, segment breakdowns, identified confounders, and a clear ship or no-ship recommendation. Budget is $1600.",
+  "company_can_do": ["statistical analysis", "A/B test evaluation", "confidence interval estimation", "data-backed recommendations"],
+  "company_cannot_do": ["guaranteed revenue uplift", "causal certainty beyond the test", "production code deployment", "regulatory sign-off"],
+  "budget": 1600,
+  "budget_range": [1100, 1600],
+  "must_have": ["effect size", "confidence interval", "statistical significance", "power analysis", "segment breakdown", "ship recommendation", "confounders"],
+  "reject_if_claims": ["guaranteed revenue uplift", "guarantee revenue", "causal certainty", "proven beyond doubt", "deploy to production", "production deployment", "regulatory sign-off"],
+  "deliverable_schema": { "type": "object" },
+  "expected_topics": ["effect size", "confidence interval", "statistical significance", "power analysis", "segment breakdown", "confounders", "ship recommendation"],
+  "reference": "A strong deliverable is a JSON A/B test readout reporting the effect size with confidence intervals, a statistical significance assessment, a sample size and power analysis, segment breakdowns, identified confounders, and a justified ship or no-ship recommendation. It must not promise guaranteed revenue uplift, claim causal certainty beyond the test, offer production deployment, or give regulatory sign-off.",
+  "tool_budget": 15
+}

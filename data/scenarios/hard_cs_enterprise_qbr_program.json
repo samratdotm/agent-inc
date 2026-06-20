@@ -1,0 +1,16 @@
+{
+  "id": "hard_cs_enterprise_qbr_program",
+  "difficulty": "hard",
+  "domain": "customer_success",
+  "brief": "VaultSecure, an enterprise cybersecurity SaaS, wants a full quarterly business review program for its strategic accounts. They need a QBR agenda template, a success metrics dashboard, an executive summary format, a renewal risk assessment, an expansion opportunity plan, and a stakeholder mapping framework. Budget is $1700.",
+  "company_can_do": ["QBR program design", "success metrics frameworks", "renewal risk assessment", "expansion strategy", "stakeholder mapping"],
+  "company_cannot_do": ["guaranteed renewals", "attending client meetings", "guaranteed upsell revenue", "negotiating contract terms"],
+  "budget": 1700,
+  "budget_range": [1200, 1700],
+  "must_have": ["QBR agenda", "success metrics", "executive summary", "renewal risk assessment", "expansion opportunity", "stakeholder mapping"],
+  "reject_if_claims": ["guaranteed renewals", "attend client meetings", "guaranteed upsell", "negotiate contract terms"],
+  "deliverable_schema": { "type": "object" },
+  "expected_topics": ["QBR agenda template", "success metrics dashboard", "executive summary format", "renewal risk assessment", "expansion opportunity plan", "stakeholder mapping framework"],
+  "reference": "A strong deliverable provides a QBR agenda template, a success metrics dashboard, an executive summary format, a renewal risk assessment, an expansion opportunity plan, and a stakeholder mapping framework for strategic accounts. It must not guarantee renewals or upsell revenue, attend client meetings, or negotiate contract terms.",
+  "tool_budget": 15
+}

@@ -1,0 +1,16 @@
+{
+  "id": "medium_ops_playbook_deploy_rollback",
+  "difficulty": "medium",
+  "domain": "ops_playbook",
+  "brief": "Atlas Web wants an operational playbook for handling a failed production deploy. It should cover detection signals, the rollback procedure, communication to stakeholders, and a post-incident review step. Budget is $550.",
+  "company_can_do": ["operational playbook writing", "incident process design", "runbook documentation", "communication templates"],
+  "company_cannot_do": ["infrastructure provisioning", "guaranteed zero downtime", "managed on-call rotation"],
+  "budget": 550,
+  "budget_range": [325, 550],
+  "must_have": ["detection signals", "rollback procedure", "stakeholder communication", "post-incident review", "roles"],
+  "reject_if_claims": ["provision infrastructure", "infrastructure provisioning", "guaranteed zero downtime", "zero downtime guarantee", "managed on-call", "run your on-call rotation"],
+  "deliverable_schema": { "type": "object" },
+  "expected_topics": ["detection signals", "rollback procedure", "stakeholder communication", "post-incident review", "defined roles"],
+  "reference": "A strong deliverable is a JSON playbook covering how a failed deploy is detected, the step-by-step rollback procedure, stakeholder communication, defined roles, and a post-incident review step. It must not claim to provision infrastructure, guarantee zero downtime, or run a managed on-call rotation.",
+  "tool_budget": 12
+}

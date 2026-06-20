@@ -1,0 +1,16 @@
+{
+  "id": "easy_content_product_descriptions",
+  "difficulty": "easy",
+  "domain": "content_copywriting",
+  "brief": "Brewly, a coffee subscription brand, needs product description copy for a new single-origin roast. They want a punchy headline, a short body paragraph, and a clear call to action. Budget is $150.",
+  "company_can_do": ["copywriting", "headline writing", "brand voice"],
+  "company_cannot_do": ["guaranteed conversions", "legal claims", "translation services"],
+  "budget": 150,
+  "budget_range": [75, 150],
+  "must_have": ["headline", "body", "call", "action"],
+  "reject_if_claims": ["guaranteed conversions", "legal claims", "translation"],
+  "deliverable_schema": { "type": "object" },
+  "expected_topics": ["headline", "body copy", "call to action"],
+  "reference": "A correct deliverable provides a punchy headline, a short body paragraph describing the single-origin roast, and a clear call to action. It must not promise guaranteed conversions, make legal claims, or offer translation services.",
+  "tool_budget": 8
+}
