@@ -1,8 +1,0 @@
-{
-  "name": "Northstar Clinic",
-  "request": "Create a JSON workflow that classifies support tickets into billing, login, bug, or other.",
-  "budget": 100,
-  "must_have": ["billing", "login", "bug", "other"],
-  "scope_keywords": ["ticket", "triage", "workflow", "classification"],
-  "reject_if_claims": ["soc2", "soc 2", "hipaa", "real-time", "real time", "realtime"]
-}

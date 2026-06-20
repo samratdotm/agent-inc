@@ -1,0 +1,16 @@
+{
+  "id": "medium_market_research",
+  "difficulty": "medium",
+  "domain": "market_research",
+  "brief": "A seed-stage founder wants a market research memo on the AI note-taking app space. It must name the top three competitors, state each competitor's pricing, and give a clear positioning recommendation with rationale. Budget is $400.",
+  "company_can_do": ["market research", "competitive analysis", "written memos"],
+  "company_cannot_do": ["legal advice", "guaranteed revenue projections", "paid user acquisition"],
+  "budget": 400,
+  "budget_range": [200, 400],
+  "must_have": ["competitors", "pricing", "positioning", "recommendation"],
+  "reject_if_claims": ["guaranteed revenue", "guaranteed growth", "legal advice"],
+  "deliverable_schema": { "type": "object" },
+  "expected_topics": ["competitors", "pricing", "positioning", "recommendation"],
+  "reference": "A strong memo names three real competitors in AI note-taking (e.g. Otter, Notion AI, Granola, Fireflies), states each one's pricing tier, and gives a specific positioning recommendation with rationale. It must not promise guaranteed revenue or offer legal advice.",
+  "tool_budget": 12
+}

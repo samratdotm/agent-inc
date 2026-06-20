@@ -1,0 +1,16 @@
+{
+  "id": "easy_ticket_triage",
+  "difficulty": "easy",
+  "domain": "workflow_automation",
+  "brief": "Northstar Clinic wants a JSON workflow that classifies inbound support tickets into one of four labels: billing, login, bug, or other. They have a fixed budget of $100 and need it this week.",
+  "company_can_do": ["JSON workflow design", "ticket classification rules", "written documentation"],
+  "company_cannot_do": ["SOC2 certification", "HIPAA compliance", "real-time integrations"],
+  "budget": 100,
+  "budget_range": [50, 100],
+  "must_have": ["billing", "login", "bug", "other"],
+  "reject_if_claims": ["soc2", "soc 2", "hipaa", "real-time", "real time", "realtime"],
+  "deliverable_schema": { "type": "object" },
+  "expected_topics": ["billing", "login", "bug", "other"],
+  "reference": "A correct deliverable is a JSON workflow whose rules map ticket keywords to exactly the four labels billing, login, bug, and other. It must not claim SOC2/HIPAA compliance or real-time capability, which this business cannot provide.",
+  "tool_budget": 8
+}

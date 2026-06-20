@@ -1,0 +1,16 @@
+{
+  "id": "hard_pricing_strategy",
+  "difficulty": "hard",
+  "domain": "pricing_strategy",
+  "brief": "A B2B SaaS company currently charges a flat $99/month and wants to move to tiered pricing. They need a proposal with three named tiers, each tier's price and feature split, the rationale behind the packaging, and a migration plan for existing $99/month customers. Budget is $1200.",
+  "company_can_do": ["pricing strategy", "SaaS packaging", "financial modeling", "go-to-market advice"],
+  "company_cannot_do": ["tax filing", "guaranteed conversion rates", "implementing billing code"],
+  "budget": 1200,
+  "budget_range": [700, 1200],
+  "must_have": ["tier", "price", "features", "migration", "rationale"],
+  "reject_if_claims": ["guaranteed conversion", "tax filing", "implement billing code"],
+  "deliverable_schema": { "type": "object" },
+  "expected_topics": ["tiers", "pricing", "feature differentiation", "migration plan", "rationale"],
+  "reference": "A strong proposal defines three named tiers, each with a price and a feature split, explains the packaging rationale, and includes a concrete migration plan for existing $99/month customers (e.g. grandfathering). It must not promise guaranteed conversion rates or offer to do tax filing or write billing code.",
+  "tool_budget": 15
+}

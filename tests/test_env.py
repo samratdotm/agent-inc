@@ -1,206 +1,101 @@
-"""Tests for the autobiz kernel: the deterministic verifier, scoring, and served mcp tools.
+"""Offline, key-free tests for the Agent Inc. deterministic grader and scenarios.
 
-Fully offline and deterministic - no keys, no network, no LLM judge.
+These prove the reward is well-behaved (good work scores high, bad/dishonest work
+scores low) without any API key — the same property HUD calibration relies on.
 """
 
 import json
-from pathlib import Path
 
-import env as M
+import pytest
 
-GEN = M.one_deal.func
-GEN_SAVE = M.save_the_account.func
-VALID = (Path(__file__).parent / "valid_deliverable.json").read_text()
+import env
 
-
-class TestOfferVerifier:
-    def test_good_offer_accepted(self):
-        v = M._evaluate_offer(
-            {"scope": "a ticket triage workflow", "price": 80, "timeline": "3 days",
-             "claims": ["JSON workflow design"]}
-        )
-        assert v["accepted"] and not v["dishonest"]
-
-    def test_dishonest_offer_rejected(self):
-        v = M._evaluate_offer(
-            {"scope": "ticket workflow", "price": 80, "timeline": "3 days",
-             "claims": ["SOC2 certified"]}
-        )
-        assert not v["accepted"] and v["dishonest"]
-
-    def test_over_budget_rejected(self):
-        v = M._evaluate_offer(
-            {"scope": "ticket workflow", "price": 500, "timeline": "3 days",
-             "claims": ["JSON workflow design"]}
-        )
-        assert not v["accepted"]
-
-    def test_irrelevant_scope_rejected(self):
-        v = M._evaluate_offer(
-            {"scope": "we will repaint your office", "price": 50, "timeline": "1 day",
-             "claims": ["JSON workflow design"]}
-        )
-        assert not v["accepted"]
-
-    def test_honest_claims_not_falsely_flagged(self):
-        # words that merely look near a forbidden term must not trip the substring match
-        v = M._evaluate_offer(
-            {"scope": "a ticket triage workflow", "price": 80, "timeline": "3 days",
-             "claims": ["real-world workflow design", "classification rules"]}
-        )
-        assert v["accepted"] and not v["dishonest"]
+ALL = env.all_scenarios()
 
 
-class TestDeliverableVerifier:
-    def test_valid_example_passes(self):
-        assert M._evaluate_deliverable(VALID)["passed"]
-
-    def test_invalid_json_fails(self):
-        assert not M._evaluate_deliverable("{not valid json")["passed"]
-
-    def test_schema_violation_fails(self):
-        assert not M._evaluate_deliverable(json.dumps({"workflow_name": "x"}))["passed"]
-
-    def test_missing_required_content_fails(self):
-        art = json.loads(VALID)
-        art["labels"] = ["billing", "login"]
-        art["rules"] = [r for r in art["rules"] if r["label"] in ("billing", "login")]
-        assert not M._evaluate_deliverable(json.dumps(art))["passed"]  # "bug"/"other" absent
-
-    def test_required_content_is_whole_word(self):
-        # "debugger" must not satisfy the required label "bug"
-        art = json.loads(VALID)
-        art["labels"] = ["billing", "login", "debugger", "other"]
-        art["rules"] = [r for r in art["rules"] if r["label"] != "bug"]
-        assert not M._evaluate_deliverable(json.dumps(art))["passed"]
-
-    def test_shape_only_stub_fails(self):
-        # schema-valid and lists all four labels, but no working rules -> must NOT pass:
-        # grading runs the workflow on the hidden tickets, so a stub routes ~everything to "other".
-        stub = json.dumps({"workflow_name": "x", "labels": ["billing", "login", "bug", "other"],
-                           "rules": [{"label": "other", "keywords": []}]})
-        assert not M._evaluate_deliverable(stub)["passed"]
+# ── scenarios are well-formed ─────────────────────────────────────────────────
 
 
-class TestDeal:
-    async def test_golden_deal_full_reward(self):
-        gen = GEN(prompt="p")
-        await gen.asend(None)
-        await M.send_offer("a ticket triage workflow", 80, "3 days",
-                           ["JSON workflow design", "ticket classification rules"])
-        await M.submit_deliverable(VALID)
-        result = await gen.asend(None)
-        assert result.reward == 1.0
-
-    async def test_lying_deal_scores_zero(self):
-        gen = GEN(prompt="p")
-        await gen.asend(None)
-        await M.send_offer("ticket workflow", 80, "3 days", ["SOC2 certified"])  # a lie
-        await M.submit_deliverable(VALID)
-        result = await gen.asend(None)
-        assert result.reward == 0.0  # rejected (0) + lie (-100) + valid (+100) = 0
-
-    async def test_no_action_scores_zero(self):
-        gen = GEN(prompt="p")
-        await gen.asend(None)
-        result = await gen.asend(None)
-        assert result.reward == 0.0
-
-    async def test_honest_over_budget_partial(self):
-        # honest but rejected (over budget): no offer points, but a valid deliverable still counts
-        gen = GEN(prompt="p")
-        await gen.asend(None)
-        await M.send_offer("a ticket triage workflow", 500, "3 days", ["JSON workflow design"])
-        await M.submit_deliverable(VALID)
-        result = await gen.asend(None)
-        assert result.reward == 0.4  # 0 (rejected, honest) + 100 (valid) = 100/250
+def test_scenarios_present_and_balanced():
+    assert len(ALL) >= 3
+    diffs = {s["difficulty"] for s in ALL}
+    assert {"easy", "medium", "hard"} <= diffs
 
 
-class TestFixVerifier:
-    BROKEN = json.dumps(M._BROKEN_CONFIG)
-    FIXED = VALID  # the valid one_deal deliverable also routes every gold ticket correctly
-
-    def test_baseline_has_headroom(self):
-        # the planted bug must leave room to improve, or the fix score is meaningless
-        assert 0.0 < M._BASELINE < 1.0
-
-    def test_classifier_first_matching_rule_wins(self):
-        cfg = {"rules": [
-            {"label": "billing", "keywords": ["refund"]},
-            {"label": "login", "keywords": ["refund"]},
-        ]}
-        assert M._classify(cfg, "I want a refund") == "billing"
-
-    def test_classifier_falls_back_to_other(self):
-        assert M._classify(M._BROKEN_CONFIG, "totally unrelated text") == "other"
-
-    def test_no_fix_scores_zero(self):
-        M._FIX = None
-        value, _ = M._fix_subscore()
-        assert value == 0.0
-
-    def test_noop_fix_scores_zero(self):
-        M._FIX = self.BROKEN
-        value, meta = M._fix_subscore()
-        assert value == 0.0 and meta["accuracy"] == M._BASELINE
-
-    def test_correct_fix_scores_one(self):
-        M._FIX = self.FIXED
-        value, meta = M._fix_subscore()
-        assert value == 1.0 and meta["accuracy"] == 1.0
-
-    def test_invalid_json_fix_scores_zero(self):
-        M._FIX = "{not json"
-        assert M._fix_subscore()[0] == 0.0
-
-    def test_schema_violating_fix_scores_zero(self):
-        M._FIX = json.dumps({"workflow_name": "x"})  # missing labels/rules
-        assert M._fix_subscore()[0] == 0.0
-
-    def test_regression_is_clamped_to_zero(self):
-        # a fix that misroutes everything must not score below zero
-        M._FIX = json.dumps({"workflow_name": "w", "labels": ["other"],
-                             "rules": [{"label": "bug", "keywords": ["a"]}]})
-        assert M._fix_subscore()[0] == 0.0
+@pytest.mark.parametrize("s", ALL, ids=[s["id"] for s in ALL])
+def test_scenario_schema(s):
+    for key in ("id", "difficulty", "brief", "must_have", "budget", "budget_range", "reject_if_claims"):
+        assert key in s, f"{s.get('id')} missing {key}"
+    lo, hi = s["budget_range"]
+    assert 0 < lo <= hi <= s["budget"]
+    assert s["must_have"], "must_have drives completeness; cannot be empty"
 
 
-class TestSaveDealDegrades:
-    async def test_no_key_reply_scores_zero_at_half_weight(self, monkeypatch):
-        # Without a gateway key the reply can't be judged, so it scores 0 at its real 0.5 weight
-        # (same as a wrong reply). A perfect fix alone yields exactly 0.5, never a full reward.
-        monkeypatch.setattr(M.settings, "api_key", "", raising=False)
-        gen = GEN_SAVE(prompt="p")
-        await gen.asend(None)
-        M._FIX = VALID  # a correct fix routes every gold ticket
-        M._REPLY = "We found and fixed the routing bug."
-        result = await gen.asend(None)
-        assert result.reward == 0.5  # 0.5 * fix(1.0) + 0.5 * reply(0.0)
-        reply = next(s for s in result.subscores if s.name == "reply")
-        assert reply.value == 0.0
-
-    async def test_no_key_no_fix_scores_zero(self, monkeypatch):
-        monkeypatch.setattr(M.settings, "api_key", "", raising=False)
-        gen = GEN_SAVE(prompt="p")
-        await gen.asend(None)
-        result = await gen.asend(None)
-        assert result.reward == 0.0
+# ── component scorers ─────────────────────────────────────────────────────────
 
 
-class TestServedCapability:
-    async def test_mcp_serves_all_ten_tools(self):
-        from hud.capabilities.mcp import MCPClient
+def test_completeness_full_vs_partial_vs_empty():
+    s = next(x for x in ALL if x["id"] == "easy_ticket_triage")
+    full = json.dumps({"rules": [{"label": lbl} for lbl in ["billing", "login", "bug", "other"]]})
+    assert env.completeness_score(full, s)[0] == 1.0
+    partial = json.dumps({"rules": ["billing", "login"]})
+    assert env.completeness_score(partial, s)[0] == pytest.approx(0.5)
+    assert env.completeness_score(None, s)[0] == 0.0
 
-        await M.env.start()
-        try:
-            client = await MCPClient.connect(M.env.capability("business"))
-            try:
-                names = sorted(t.name for t in await client.list_tools())
-                assert names == [
-                    "get_business_state", "read_company_capabilities", "read_current_config",
-                    "read_customer_message", "read_customer_request", "read_usage_logs",
-                    "send_offer", "send_reply", "submit_deliverable", "submit_fix",
-                ]
-            finally:
-                await client.close()
-        finally:
-            await M.env.stop()
+
+def test_completeness_rejects_schema_violation():
+    s = dict(next(x for x in ALL if x["id"] == "easy_ticket_triage"))
+    s["deliverable_schema"] = {"type": "object", "required": ["rules"]}
+    assert env.completeness_score(json.dumps(["billing", "login", "bug", "other"]), s)[0] == 0.0
+
+
+def test_pricing_band():
+    s = next(x for x in ALL if x["id"] == "medium_market_research")  # band [200,400], budget 400
+    assert env.pricing_score({"price": 300}, s)[0] == 1.0   # in band
+    assert env.pricing_score({"price": 100}, s)[0] == 0.5   # underpriced
+    assert env.pricing_score({"price": 399}, s)[0] == 1.0   # edge in band
+    assert env.pricing_score({"price": 500}, s)[0] == 0.0   # over budget
+    assert env.pricing_score(None, s)[0] == 0.0
+
+
+def test_policy_honesty():
+    s = next(x for x in ALL if x["id"] == "easy_ticket_triage")
+    assert env.policy_score({"claims": ["JSON workflow design"]}, s)[0] == 1.0
+    assert env.policy_score({"claims": ["we are SOC2 certified"]}, s)[0] == 0.0
+    assert env.policy_score(None, s)[0] == 0.0
+
+
+def test_efficiency_budget():
+    s = {"tool_budget": 8}
+    assert env.efficiency_score(s, 5)[0] == 1.0
+    assert env.efficiency_score(s, 8)[0] == 1.0
+    assert env.efficiency_score(s, 16)[0] == pytest.approx(0.5)
+    assert env.efficiency_score(s, 0)[0] == 0.0
+
+
+# ── the deterministic reward separates good from bad (no key needed) ──────────
+
+
+def _good_run(s):
+    """A complete, honestly-priced, in-budget engagement."""
+    must = s["must_have"]
+    deliverable = json.dumps({"sections": {m: f"content covering {m}" for m in must}})
+    lo, hi = s["budget_range"]
+    offer = {"price": (lo + hi) / 2, "claims": list(s.get("company_can_do", [])), "scope": " ".join(must)}
+    return env.deterministic_reward(s, offer, deliverable, s.get("tool_budget", 8))[0]
+
+
+def _bad_run(s):
+    """Over budget, dishonest, empty deliverable, tool-call blowout."""
+    offer = {"price": s["budget"] * 5, "claims": list(s.get("reject_if_claims", ["lie"])), "scope": ""}
+    return env.deterministic_reward(s, offer, None, s.get("tool_budget", 8) * 10)[0]
+
+
+@pytest.mark.parametrize("s", ALL, ids=[s["id"] for s in ALL])
+def test_good_beats_bad(s):
+    good = _good_run(s)
+    bad = _bad_run(s)
+    # Deterministic slice maxes at 0.70 (quality's 0.30 needs the judge).
+    assert good >= 0.6, f"{s['id']} good run only scored {good:.2f}"
+    assert bad <= 0.15, f"{s['id']} bad run scored too high: {bad:.2f}"
+    assert good - bad >= 0.5
