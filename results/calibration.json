@@ -1,0 +1,29 @@
+{
+  "note": "Phase 1 calibration of Agent Inc. over all 30 scenarios (10 easy / 10 medium / 10 hard), gated grader (delivery gate active). Each run = 1 group x 30 tasks, max_steps 18, via HUD gateway.",
+  "target_band": "HUD asks for 20-50% mean reward with variance for the trained model.",
+  "leaderboard": [
+    {
+      "model": "claude-sonnet-4-6",
+      "agent": "claude",
+      "mean_reward": 0.951,
+      "std": 0.084,
+      "success_rate": 0.967,
+      "job": "https://hud.ai/jobs/3b76269a5ea8459c9d277287b89ba4e1",
+      "role": "frontier reference (leaderboard top)"
+    },
+    {
+      "model": "Qwen/Qwen3.5-4B",
+      "agent": "openai_compatible",
+      "mean_reward": 0.263,
+      "std": 0.289,
+      "success_rate": 0.133,
+      "job": "https://hud.ai/jobs/f5b5f04ef7784468905b87c89f1598c8",
+      "role": "RL target (trainable via HUD/Tinker fork) — in-band, high variance",
+      "in_target_band": true
+    }
+  ],
+  "rl_runway": "Qwen base 0.263 -> RL target ~0.5+ (before/after delta is the demo headline).",
+  "history": {
+    "pre_gate_qwen": {"mean_reward": 0.529, "std": 0.162, "note": "0.45 floor from offer-without-delivery inflated the mean"}
+  }
+}
