@@ -188,14 +188,43 @@ def efficiency_score(scenario: dict[str, Any], tool_calls: int) -> tuple[float, 
     return budget / tool_calls, {"tool_calls": tool_calls, "budget": budget, "reason": "Over tool budget."}
 
 
-def deterministic_reward(scenario, offer, deliverable, tool_calls) -> tuple[float, dict]:
-    """The key-free portion: completeness + pricing + efficiency + policy, weighted."""
+def _is_delivered(deliverable: str | None) -> bool:
+    """A deliverable counts as submitted if it parses to non-empty content."""
+    return _parse_artifact(deliverable) is not None
+
+
+# An offer for work that is never delivered does not get paid in full — you are
+# paid for delivery, not promises. Without a submitted deliverable the offer-side
+# credit is halved and efficiency is zeroed, so "made a nice offer, delivered
+# nothing" can't coast on a high floor (and RL gets a sharp pull toward delivering).
+_UNDELIVERED_OFFER_FACTOR = 0.5
+
+
+def reward_components(scenario, offer, deliverable, tool_calls) -> list[tuple[str, float, float, dict]]:
+    """The four deterministic criteria as (name, weight, value, metadata), delivery-gated."""
     c, c_m = completeness_score(deliverable, scenario)
     p, p_m = pricing_score(offer, scenario)
     e, e_m = efficiency_score(scenario, tool_calls)
     pol, pol_m = policy_score(offer, scenario)
-    total = _W_COMPLETENESS * c + _W_PRICING * p + _W_EFFICIENCY * e + _W_POLICY * pol
-    info = {"completeness": c_m, "pricing": p_m, "efficiency": e_m, "policy": pol_m}
+    if not _is_delivered(deliverable):
+        p *= _UNDELIVERED_OFFER_FACTOR
+        pol *= _UNDELIVERED_OFFER_FACTOR
+        e = 0.0
+        for m in (p_m, pol_m, e_m):
+            m["gated"] = "no deliverable submitted (offer-side credit reduced)"
+    return [
+        ("completeness", _W_COMPLETENESS, c, c_m),
+        ("pricing", _W_PRICING, p, p_m),
+        ("efficiency", _W_EFFICIENCY, e, e_m),
+        ("policy", _W_POLICY, pol, pol_m),
+    ]
+
+
+def deterministic_reward(scenario, offer, deliverable, tool_calls) -> tuple[float, dict]:
+    """The key-free portion: completeness + pricing + efficiency + policy, weighted + gated."""
+    comps = reward_components(scenario, offer, deliverable, tool_calls)
+    total = sum(w * v for _, w, v, _ in comps)
+    info = {name: meta for name, _, _, meta in comps}
     return total, info
 
 
@@ -449,18 +478,11 @@ async def client_engagement(scenario_id: str) -> AsyncGenerator[Any, Any]:
             metadata={"skipped": "no HUD_API_KEY or no deliverable; quality scores 0 at weight 0.30"},
         )
 
-    c, c_m = completeness_score(_DELIVERABLE, _SCENARIO)
-    p, p_m = pricing_score(_OFFER, _SCENARIO)
-    e, e_m = efficiency_score(_SCENARIO, _TOOL_CALLS)
-    pol, pol_m = policy_score(_OFFER, _SCENARIO)
-
-    result = await combine(
-        SubScore(name="completeness", weight=_W_COMPLETENESS, value=c, metadata=c_m),
-        quality,
-        SubScore(name="pricing", weight=_W_PRICING, value=p, metadata=p_m),
-        SubScore(name="efficiency", weight=_W_EFFICIENCY, value=e, metadata=e_m),
-        SubScore(name="policy", weight=_W_POLICY, value=pol, metadata=pol_m),
-    )
+    subs = [
+        SubScore(name=name, weight=weight, value=value, metadata=meta)
+        for name, weight, value, meta in reward_components(_SCENARIO, _OFFER, _DELIVERABLE, _TOOL_CALLS)
+    ]
+    result = await combine(quality, *subs)
     logger.info(
         "%s reward=%.3f (deterministic=%.3f, tool_calls=%d)",
         scenario_id, result.reward, det, _TOOL_CALLS,

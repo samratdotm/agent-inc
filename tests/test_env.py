@@ -99,3 +99,18 @@ def test_good_beats_bad(s):
     assert good >= 0.6, f"{s['id']} good run only scored {good:.2f}"
     assert bad <= 0.15, f"{s['id']} bad run scored too high: {bad:.2f}"
     assert good - bad >= 0.5
+
+
+@pytest.mark.parametrize("s", ALL, ids=[s["id"] for s in ALL])
+def test_delivery_gate(s):
+    """A perfect, honest, in-budget OFFER with no deliverable must not coast on a high floor.
+
+    You are paid for delivery, not promises: offer-side credit is halved and efficiency
+    zeroed, so an undelivered engagement stays well below a delivered one.
+    """
+    lo, hi = s["budget_range"]
+    good_offer = {"price": (lo + hi) / 2, "claims": list(s.get("company_can_do", [])), "scope": " ".join(s["must_have"])}
+    undelivered = env.deterministic_reward(s, good_offer, None, s.get("tool_budget", 8))[0]
+    delivered = _good_run(s)
+    assert undelivered <= 0.20, f"{s['id']} undelivered offer floor too high: {undelivered:.2f}"
+    assert delivered - undelivered >= 0.4
