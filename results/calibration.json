@@ -12,6 +12,16 @@
       "role": "frontier reference (leaderboard top)"
     },
     {
+      "model": "gemini-3.1-pro-preview",
+      "agent": "gemini",
+      "mean_reward": 0.91,
+      "std": 0.13,
+      "success_rate": 0.97,
+      "job": "https://hud.ai/jobs/c3bc520e83804db686ddd639e24b469c",
+      "role": "frontier comparison (Gemini 3.1 Pro)",
+      "stats_note": "mean is authoritative (HUD job, 30 tasks, 91%); std & success_rate estimated from trace sample — replace with exact terminal Results figures when available"
+    },
+    {
       "model": "Qwen/Qwen3.5-4B",
       "agent": "openai_compatible",
       "mean_reward": 0.263,
