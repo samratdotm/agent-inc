@@ -1,0 +1,10 @@
+{
+  "note": "How the live workflow classified the last few tickets. routed_to is what the current (broken) config produced.",
+  "recent_classifications": [
+    {"ticket": "I was charged twice and need a refund", "routed_to": "login"},
+    {"ticket": "My payment did not go through, can you help?", "routed_to": "login"},
+    {"ticket": "Can I get a refund for this month?", "routed_to": "login"},
+    {"ticket": "I forgot my password", "routed_to": "login"},
+    {"ticket": "Getting an error when I open reports", "routed_to": "bug"}
+  ]
+}

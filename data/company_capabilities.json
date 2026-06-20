@@ -1,0 +1,4 @@
+{
+  "can_do": ["JSON workflow design", "ticket classification rules"],
+  "cannot_do": ["SOC2 certification", "HIPAA compliance", "real-time integrations"]
+}

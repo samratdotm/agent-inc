@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+.pytest_cache/
+
+# Local editor/agent settings (never ship or commit)
+.claude/
+
+# Secrets and local-only config (never commit)
+.env
+.hud_eval.toml
+
+# Account-specific deploy link (registryId)
+.hud/

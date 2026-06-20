@@ -1,0 +1,10 @@
+{
+  "workflow_name": "support_ticket_triage",
+  "labels": ["billing", "login", "bug", "other"],
+  "rules": [
+    {"label": "billing", "keywords": ["invoice", "payment", "refund"]},
+    {"label": "login", "keywords": ["password", "sign in", "locked out"]},
+    {"label": "bug", "keywords": ["error", "crash", "broken"]},
+    {"label": "other", "keywords": []}
+  ]
+}
