@@ -73,6 +73,13 @@ async def _retry(make_coro, what, max_wait=STEP_MAX_WAIT):
             delay = min(delay * 2, 120)
 
 
+def _quarantine(label: str, value: float, reason: str) -> None:
+    """Record a rejected number for transparency — it NEVER touches calibration.json."""
+    with (REPO / "results" / "quarantine.jsonl").open("a") as f:
+        f.write(json.dumps({"label": label, "value": round(value, 4), "reason": reason}) + "\n")
+    print(f"  [QUARANTINE] {label}={value:.3f}: {reason}", flush=True)
+
+
 async def _eval_all(agent, label) -> float:
     ts = _mk([s["id"] for s in all_scenarios()])
     job = await _retry(
@@ -101,9 +108,10 @@ async def main() -> None:
     elif done_steps == 0:
         before = await _eval_all(agent, "before")
         if before < MIN_PLAUSIBLE_BASELINE:
+            _quarantine("baseline", before, "below plausibility floor — degraded pool, rollouts failing")
             raise SystemExit(
-                f"baseline {before:.3f} < {MIN_PLAUSIBLE_BASELINE} — pool degraded, rollouts "
-                "failing; NOT caching this junk number. Supervisor will retry on a healthier pool."
+                f"baseline {before:.3f} < {MIN_PLAUSIBLE_BASELINE} — NOT caching this junk number. "
+                "Supervisor will retry on a healthier pool."
             )
         STATE.parent.mkdir(exist_ok=True)
         STATE.write_text(json.dumps({"model": MODEL, "baseline": before}))
@@ -130,9 +138,15 @@ async def main() -> None:
             f.write(json.dumps({"step": step, "reward": mean, "phase": "train"}) + "\n")
 
     after = await _eval_all(agent, "after")
+    if after < MIN_PLAUSIBLE_BASELINE:
+        # An implausibly low 'after' almost always means a degraded pool, not a real
+        # collapse. Do NOT finalize or touch calibration.json — re-eval clean on relaunch.
+        _quarantine("after", after, "below plausibility floor — degraded pool; not finalizing")
+        raise SystemExit(f"after {after:.3f} implausibly low — NOT writing results. Supervisor re-evals.")
     with CURVE.open("a") as f:
         f.write(json.dumps({"step": STEPS, "reward": after, "phase": "final"}) + "\n")
 
+    # Canonical calibration.json is touched ONLY here, with a clean before AND after.
     if CALIBRATION.exists():
         cal = json.loads(CALIBRATION.read_text(encoding="utf-8"))
         for e in cal.get("leaderboard", []):
