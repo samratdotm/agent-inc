@@ -19,6 +19,7 @@ from typing import Any
 
 REPO = Path(__file__).parent
 CALIBRATION = REPO / "results" / "calibration.json"
+TRAINING_CURVE = REPO / "results" / "training_curve.jsonl"
 SCENARIOS_DIR = REPO / "data" / "scenarios"
 SAMPLE_RUNS = REPO / "data" / "sample_runs.json"
 
@@ -117,6 +118,41 @@ def training_curve() -> dict[str, Any]:
         "runway": cal.get("rl_runway", ""),
         "has_after": after is not None,
     }
+
+
+def training_progress() -> dict[str, Any]:
+    """The per-step RL learning curve from results/training_curve.jsonl.
+
+    scripts/rl_train.py writes one JSON object per line: {step, reward, phase}
+    with phase in {baseline, train, final}. Returns the ordered points plus the
+    baseline/final endpoints and the delta. ``available`` is False (empty) until
+    the RL run has produced the file. Malformed/partial lines are skipped, so the
+    panel still renders if the file is read mid-write.
+    """
+    empty = {"points": [], "available": False, "baseline": None, "final": None, "delta": None}
+    if not TRAINING_CURVE.exists():
+        return empty
+    points: list[dict[str, Any]] = []
+    for line in TRAINING_CURVE.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            rec = json.loads(line)
+        except ValueError:
+            continue
+        if not isinstance(rec, dict) or "reward" not in rec:
+            continue
+        points.append(
+            {"step": rec.get("step"), "reward": float(rec["reward"]), "phase": rec.get("phase", "train")}
+        )
+    if not points:
+        return empty
+    points.sort(key=lambda p: p["step"] if p["step"] is not None else 0)
+    baseline = next((p["reward"] for p in points if p["phase"] == "baseline"), None)
+    final = next((p["reward"] for p in points if p["phase"] == "final"), None)
+    delta = (final - baseline) if (baseline is not None and final is not None) else None
+    return {"points": points, "available": True, "baseline": baseline, "final": final, "delta": delta}
 
 
 def _scenario_meta() -> dict[str, dict[str, str]]:
