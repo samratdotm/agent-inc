@@ -101,7 +101,11 @@ def training_curve() -> dict[str, Any]:
 
     points: list[dict[str, Any]] = []
     if base:
-        points.append({"label": "Qwen base", "reward": float(base.get("mean_reward", 0.0))})
+        # Prefer the RL run's own before-eval (rl_baseline_mean_reward) so the
+        # before/after is apples-to-apples with post_rl_mean_reward; fall back to
+        # the leaderboard calibration number when RL hasn't run.
+        base_reward = base.get("rl_baseline_mean_reward", base.get("mean_reward", 0.0))
+        points.append({"label": "Qwen base", "reward": float(base_reward)})
 
     after = None
     if trained is not None:
