@@ -26,7 +26,7 @@ from env import all_scenarios, client_engagement
 # ── knobs ─────────────────────────────────────────────────────────────────────
 MODEL = "agent-inc-rl-v4"          # fresh fork
 GROUP = 8
-STEPS = 18
+STEPS = 16                         # eval-only: 16 checkpoints done -> no training, straight to guarded after-eval
 LR = 2e-5
 MAX_CONCURRENT = 3                 # Tinker pool ceiling (degraded); retries cover the rest
 TRAIN_IDS = [

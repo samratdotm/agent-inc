@@ -19,7 +19,7 @@
       "success_rate": 0.97,
       "job": "https://hud.ai/jobs/c3bc520e83804db686ddd639e24b469c",
       "role": "frontier comparison (Gemini 3.1 Pro)",
-      "stats_note": "mean is authoritative (HUD job, 30 tasks, 91%); std & success_rate estimated from trace sample — replace with exact terminal Results figures when available"
+      "stats_note": "mean is authoritative (HUD job, 30 tasks, 91%); std & success_rate estimated from trace sample \u2014 replace with exact terminal Results figures when available"
     },
     {
       "model": "Qwen/Qwen3.5-4B",
@@ -28,12 +28,18 @@
       "std": 0.289,
       "success_rate": 0.133,
       "job": "https://hud.ai/jobs/f5b5f04ef7784468905b87c89f1598c8",
-      "role": "RL target (trainable via HUD/Tinker fork) — in-band, high variance",
-      "in_target_band": true
+      "role": "RL target (trainable via HUD/Tinker fork) \u2014 in-band, high variance",
+      "in_target_band": true,
+      "post_rl_mean_reward": 0.647,
+      "rl_baseline_mean_reward": 0.327
     }
   ],
   "rl_runway": "Qwen base 0.263 -> RL target ~0.5+ (before/after delta is the demo headline).",
   "history": {
-    "pre_gate_qwen": {"mean_reward": 0.529, "std": 0.162, "note": "0.45 floor from offer-without-delivery inflated the mean"}
+    "pre_gate_qwen": {
+      "mean_reward": 0.529,
+      "std": 0.162,
+      "note": "0.45 floor from offer-without-delivery inflated the mean"
+    }
   }
 }
