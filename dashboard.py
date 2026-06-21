@@ -17,7 +17,6 @@ import pandas as pd
 import streamlit as st
 
 import dashboard_data as data
-import live_run
 
 st.set_page_config(page_title="Agent Inc. — Dashboard", page_icon="📊", layout="wide")
 
@@ -59,44 +58,6 @@ else:
                 "std": st.column_config.NumberColumn("± std", format="%.3f"),
             },
         )
-
-st.divider()
-
-# ── live: run one engagement end-to-end, scored on the spot ─────────────────────
-st.header("▶ Run a live engagement")
-st.caption(
-    "Pick a scenario and run an agent through it end-to-end — researched, priced, "
-    "delivered, and **scored live by the grader** (via the HUD gateway, ~30s)."
-)
-_sids = data.scenario_ids()
-lr_a, lr_b, lr_c = st.columns([3, 2, 1])
-sel_sid = lr_a.selectbox(
-    "Scenario", _sids, index=(_sids.index("easy_ticket_triage") if "easy_ticket_triage" in _sids else 0)
-)
-sel_model = lr_b.selectbox(
-    "Model", ["claude-sonnet-4-6", "gemini-3.1-pro-preview", "Qwen/Qwen3.5-4B"], index=0
-)
-run_now = lr_c.button("Run ▶", type="primary")
-if run_now:
-    with st.spinner(f"Running '{sel_sid}' with {sel_model} — live via HUD gateway, ~30s…"):
-        try:
-            res = live_run.run_engagement(sel_sid, sel_model)
-        except Exception as exc:  # gateway hiccup, etc. — fail soft in the demo
-            res = None
-            st.error(f"Run failed: {exc}")
-    if res is not None:
-        rc, bc = st.columns([1, 2])
-        with rc:
-            rw = res["reward"]
-            st.metric("Reward", f"{rw:.3f}" if rw is not None else "—")
-            st.caption(f"{res['model']} · {res['scenario_id']}")
-        with bc:
-            if res["subscores"]:
-                bd = pd.DataFrame(res["subscores"])
-                st.bar_chart(bd.set_index("name")["contribution"], height=240)
-                st.dataframe(bd, hide_index=True, width="stretch")
-            else:
-                st.info("No per-criterion breakdown returned for this run.")
 
 st.divider()
 
