@@ -15,7 +15,7 @@ import streamlit as st
 import dashboard_data as data
 import live_run
 
-ACCENT = "#6E8BFF"  # brand accent used for chart series
+ACCENT = "#E5E5E5"  # monochrome chart series (SpaceX-style: light on black)
 
 st.set_page_config(page_title="Agent Inc.", page_icon="📊", layout="wide")
 
@@ -23,20 +23,24 @@ st.set_page_config(page_title="Agent Inc.", page_icon="📊", layout="wide")
 st.markdown(
     """
     <style>
-      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-      html, body, [class*="css"], [data-testid="stMarkdownContainer"] { font-family: 'Inter', system-ui, sans-serif; }
+      @import url('https://fonts.googleapis.com/css2?family=Saira:wght@300;400;500;600;700&display=swap');
+      html, body, [class*="css"], [data-testid="stMarkdownContainer"] { font-family: 'Saira', 'Helvetica Neue', Arial, sans-serif; }
+      .stApp { background: #000; }
       #MainMenu, [data-testid="stToolbar"], [data-testid="stStatusWidget"], footer, [data-testid="stDecoration"] { display: none !important; }
       header[data-testid="stHeader"] { background: transparent; height: 0; }
-      .block-container { padding-top: 2.2rem; padding-bottom: 3rem; max-width: 1380px; }
-      h2 { font-size: 1.28rem !important; font-weight: 600 !important; letter-spacing: -0.01em;
-           border-left: 3px solid #6E8BFF; padding-left: 0.7rem !important; margin: 0.5rem 0 0.1rem; }
-      h3 { font-size: 1.0rem !important; font-weight: 600 !important; color: #C3C9D8 !important; }
-      hr { margin: 1.3rem 0 !important; border-color: #1E2533 !important; }
-      [data-testid="stMetric"] { background: #141925; border: 1px solid #232A3A; border-radius: 10px; padding: 0.8rem 1rem; }
-      [data-testid="stMetricLabel"] p { opacity: 0.6; font-size: 0.74rem !important; text-transform: uppercase; letter-spacing: 0.05em; }
-      [data-testid="stMetricValue"] { font-weight: 700; }
-      [data-testid="stDataFrame"], [data-testid="stTable"] { border: 1px solid #232A3A; border-radius: 8px; }
-      .stCaption, [data-testid="stCaptionContainer"] { color: #7E869B !important; }
+      .block-container { padding-top: 2.6rem; padding-bottom: 3.5rem; max-width: 1340px; }
+      h2 { text-transform: uppercase; letter-spacing: 0.14em; font-weight: 600 !important; font-size: 1.02rem !important;
+           color: #fff !important; border: none; padding: 0 !important; margin: 0.7rem 0 0.7rem; }
+      h3 { text-transform: uppercase; letter-spacing: 0.1em; font-weight: 500 !important; font-size: 0.8rem !important; color: #8a8a8a !important; }
+      hr { margin: 1.7rem 0 !important; border-color: #161616 !important; }
+      [data-testid="stMetric"] { background: transparent; border: none; border-bottom: 1px solid #1a1a1a; border-radius: 0; padding: 0.3rem 0 0.5rem; }
+      [data-testid="stMetricLabel"] p { text-transform: uppercase; letter-spacing: 0.12em; font-size: 0.66rem !important; color: #6f6f6f; }
+      [data-testid="stMetricValue"] { font-weight: 600; color: #fff; }
+      [data-testid="stDataFrame"], [data-testid="stTable"] { border: 1px solid #1a1a1a; border-radius: 0; }
+      [data-testid="stWidgetLabel"] p { text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.7rem !important; color: #8a8a8a; }
+      .stButton button { text-transform: uppercase; letter-spacing: 0.12em; font-weight: 600; border-radius: 0; }
+      .stButton button[kind="primary"] { background: #fff; color: #000; border: none; }
+      .stCaption, [data-testid="stCaptionContainer"] { color: #6f6f6f !important; }
     </style>
     """,
     unsafe_allow_html=True,
@@ -45,14 +49,10 @@ st.markdown(
 # ── header ──────────────────────────────────────────────────────────────────────
 st.markdown(
     """
-    <div style="margin-bottom:1.1rem;">
-      <div style="display:flex; align-items:baseline; gap:0.75rem; flex-wrap:wrap;">
-        <span style="font-size:1.85rem; font-weight:700; letter-spacing:-0.02em; color:#F2F4FA;">Agent&nbsp;Inc.</span>
-        <span style="color:#7E869B; font-size:0.92rem; font-weight:500;">An RL environment for autonomous business operations</span>
-      </div>
-      <div style="color:#737B90; font-size:0.9rem; margin-top:0.3rem;">
-        SWE-bench taught models to code. Agent Inc. teaches them to run a business.
-      </div>
+    <div style="margin-bottom:1.7rem;">
+      <div style="font-size:2.15rem; font-weight:700; letter-spacing:0.18em; color:#fff; text-transform:uppercase;">Agent&nbsp;Inc.</div>
+      <div style="color:#7a7a7a; font-size:0.74rem; letter-spacing:0.22em; text-transform:uppercase; margin-top:0.55rem;">RL Environment&nbsp;·&nbsp;Autonomous Business Operations</div>
+      <div style="color:#5c5c5c; font-size:0.85rem; margin-top:0.7rem; letter-spacing:0.01em;">SWE-bench taught models to code. Agent Inc. teaches them to run a business.</div>
     </div>
     """,
     unsafe_allow_html=True,
@@ -200,9 +200,8 @@ else:
     def _heat(v):
         if pd.isna(v):
             return ""
-        r = int(255 * min(1.0, 2 * (1 - v)))
-        g = int(255 * min(1.0, 2 * v))
-        return f"background-color: rgba({r}, {g}, 90, 0.55)"
+        a = 0.06 + 0.6 * max(0.0, min(1.0, float(v)))  # brighter = higher reward
+        return f"background-color: rgba(255, 255, 255, {a:.2f}); color: #fff"
 
     pivot = runs_df.pivot_table(index="scenario_id", columns="model", values="reward")
     styler = pivot.style.format("{:.2f}", na_rep="—")
@@ -247,9 +246,9 @@ runs_bit = (
 )
 st.markdown(
     f"""
-    <div style="color:#6B7387; font-size:0.82rem; margin-top:0.3rem;">
-      Leaderboard: <b style="color:#9AA3B8;">{leaderboard_bit}</b>
-      &nbsp;·&nbsp; Per-run: <b style="color:#9AA3B8;">{runs_bit}</b>
+    <div style="color:#5c5c5c; font-size:0.7rem; letter-spacing:0.1em; text-transform:uppercase; margin-top:0.5rem;">
+      Leaderboard — <b style="color:#8a8a8a;">{leaderboard_bit}</b>
+      &nbsp;·&nbsp; Per-run — <b style="color:#8a8a8a;">{runs_bit}</b>
     </div>
     """,
     unsafe_allow_html=True,
