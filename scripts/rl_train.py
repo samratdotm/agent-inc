@@ -40,6 +40,12 @@ STEP_MAX_WAIT = 900                # retry a wedged step up to ~15 min, then exi
 # means the eval ran on a degraded pool (rollouts failing) and is contaminated — reject it
 # rather than cache a junk number that would fake a huge "improvement" later.
 MIN_PLAUSIBLE_BASELINE = 0.20
+# Judge-health guard: rollouts whose LLM-judge (Anthropic) 503s come back ungraded
+# (reward=None). If too many of an eval's rollouts failed grading, the mean is over a
+# biased subset — reject the whole eval and retry on a healthy judge, rather than report
+# a verdict the Anthropic outage silently corrupted. (Never fall back to a DIFFERENT judge:
+# judges aren't calibrated to each other, so that would make before/after incomparable.)
+MIN_GRADED_FRACTION = 0.90
 
 REPO = Path(__file__).parent.parent
 CURVE = REPO / "results" / "training_curve.jsonl"
@@ -86,9 +92,20 @@ async def _eval_all(agent, label) -> float:
         lambda: ts.run(agent, runtime=RUNTIME, group=1, max_concurrent=MAX_CONCURRENT),
         f"eval:{label}",
     )
+    total = len(job.runs)
     rewards = [r.reward for r in job.runs if r.reward is not None]
+    graded_fraction = (len(rewards) / total) if total else 0.0
+    # Judge-health gate: too many ungraded rollouts ⇒ the LLM-judge (Anthropic) was degraded;
+    # this eval is contaminated. Reject + retry on a healthy judge — never report a biased mean.
+    if graded_fraction < MIN_GRADED_FRACTION:
+        _quarantine(f"{label}:graded_fraction", graded_fraction,
+                    f"only {len(rewards)}/{total} rollouts graded (judge/Anthropic degraded)")
+        raise SystemExit(
+            f"{label} eval: only {len(rewards)}/{total} rollouts graded successfully "
+            f"(< {MIN_GRADED_FRACTION:.0%}) — judge degraded; NOT trusting it. Supervisor re-evals clean."
+        )
     mean = stats.fmean(rewards) if rewards else 0.0
-    print(f"[{label}] mean_reward={mean:.3f} over {len(rewards)} scenarios "
+    print(f"[{label}] mean_reward={mean:.3f} over {len(rewards)}/{total} graded scenarios "
           f"(job https://hud.ai/jobs/{job.id})", flush=True)
     return mean
 
