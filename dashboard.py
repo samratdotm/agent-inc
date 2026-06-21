@@ -15,7 +15,7 @@ import streamlit as st
 import dashboard_data as data
 import live_run
 
-ACCENT = "#E5E5E5"  # monochrome chart series (SpaceX-style: light on black)
+ACCENT = "#4D9FFF"  # vivid chart series — color pops on the black SpaceX canvas
 
 st.set_page_config(page_title="Agent Inc.", page_icon="📊", layout="wide")
 
@@ -200,8 +200,10 @@ else:
     def _heat(v):
         if pd.isna(v):
             return ""
-        a = 0.06 + 0.6 * max(0.0, min(1.0, float(v)))  # brighter = higher reward
-        return f"background-color: rgba(255, 255, 255, {a:.2f}); color: #fff"
+        v = max(0.0, min(1.0, float(v)))
+        r = int(255 * min(1.0, 2 * (1 - v)))  # red -> yellow -> green
+        g = int(255 * min(1.0, 2 * v))
+        return f"background-color: rgba({r}, {g}, 90, 0.6); color: #fff"
 
     pivot = runs_df.pivot_table(index="scenario_id", columns="model", values="reward")
     styler = pivot.style.format("{:.2f}", na_rep="—")
