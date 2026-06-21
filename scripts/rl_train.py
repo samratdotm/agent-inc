@@ -36,6 +36,10 @@ TRAIN_IDS = [
 ]
 EXPECTED_BATCH = len(TRAIN_IDS) * GROUP
 STEP_MAX_WAIT = 900                # retry a wedged step up to ~15 min, then exit (supervisor relaunches)
+# Prior CLEAN baselines for this base model were 0.26-0.39. A baseline below this floor
+# means the eval ran on a degraded pool (rollouts failing) and is contaminated — reject it
+# rather than cache a junk number that would fake a huge "improvement" later.
+MIN_PLAUSIBLE_BASELINE = 0.20
 
 REPO = Path(__file__).parent.parent
 CURVE = REPO / "results" / "training_curve.jsonl"
@@ -96,6 +100,11 @@ async def main() -> None:
         print(f"[resume] {MODEL}: {done_steps} steps done, baseline={before:.3f}", flush=True)
     elif done_steps == 0:
         before = await _eval_all(agent, "before")
+        if before < MIN_PLAUSIBLE_BASELINE:
+            raise SystemExit(
+                f"baseline {before:.3f} < {MIN_PLAUSIBLE_BASELINE} — pool degraded, rollouts "
+                "failing; NOT caching this junk number. Supervisor will retry on a healthier pool."
+            )
         STATE.parent.mkdir(exist_ok=True)
         STATE.write_text(json.dumps({"model": MODEL, "baseline": before}))
         CURVE.write_text(json.dumps({"step": -1, "reward": before, "phase": "baseline"}) + "\n")

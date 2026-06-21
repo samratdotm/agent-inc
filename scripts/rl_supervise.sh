@@ -15,8 +15,15 @@ while true; do
     echo "[supervisor] DONE — training complete $(date)" >> "$LOG"
     break
   fi
+  # Health-gate: don't burn a baseline/step against a dead pool — wait for a pulse first.
+  HEALTH=$(EXA_API_KEY= SIXTYFOUR_API_KEY= uv run python scripts/pool_probe.py 2>/dev/null | tail -1)
+  if [ "$HEALTH" != "OK" ]; then
+    echo "[supervisor] pool DOWN ($HEALTH) — waiting 90s before retry $(date)" >> "$LOG"
+    sleep 90
+    continue
+  fi
   attempt=$((attempt+1))
-  echo "[supervisor] launch attempt #$attempt $(date)" >> "$LOG"
+  echo "[supervisor] pool OK — launch attempt #$attempt $(date)" >> "$LOG"
   EXA_API_KEY= SIXTYFOUR_API_KEY= uv run python -u scripts/rl_train.py >> "$LOG" 2>&1
   rc=$?
   if [ -f "$DONE" ]; then
