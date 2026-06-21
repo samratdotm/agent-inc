@@ -170,6 +170,11 @@ def _scenario_meta() -> dict[str, dict[str, str]]:
     return meta
 
 
+def scenario_ids() -> list[str]:
+    """Sorted list of all scenario ids on disk (for the live-run picker)."""
+    return sorted(_scenario_meta().keys())
+
+
 def scenario_counts() -> dict[str, int]:
     """How many scenarios exist, by difficulty (real)."""
     counts: dict[str, int] = {}
