@@ -64,24 +64,51 @@ def leaderboard_rows() -> list[dict[str, Any]]:
     return rows
 
 
+def _is_trained(entry: dict[str, Any]) -> bool:
+    """True if a leaderboard entry is the RL-trained ('after') model.
+
+    Primary signal is an explicit ``"is_trained": true`` flag. As a fallback we
+    accept a few unambiguous markers in the model/role text. NOTE: the base
+    Qwen entry's role says "RL *target* ... trainable" — those words are
+    deliberately NOT treated as trained markers, so the base never false-matches.
+    """
+    if entry.get("is_trained") is True:
+        return True
+    text = f"{entry.get('model', '')} {entry.get('role', '')}".lower()
+    return any(m in text for m in ("rl-trained", "post-rl", "after rl", "+ rl", "+rl"))
+
+
 def training_curve() -> dict[str, Any]:
     """Points for the RL before/after story.
 
-    The 'after RL' point appears once a trained-model reward is exported (we look
-    for ``post_rl_mean_reward`` on the Qwen leaderboard entry). Until then we show
-    the base, the target line, and the frontier ceiling.
+    The 'after RL' point appears automatically once the trained model's reward is
+    in ``calibration.json`` — via EITHER convention:
+      (A) a ``post_rl_mean_reward`` field on the base Qwen entry, or
+      (B) a separate trained leaderboard row (``is_trained: true``, which also
+          surfaces as its own bar/row in the leaderboard panel).
+    Until then we show the base, the target line, and the frontier ceiling.
     """
     cal = load_calibration()
-    by_agent = {e.get("agent"): e for e in cal.get("leaderboard", [])}
-    qwen = by_agent.get("openai_compatible", {})
-    claude = by_agent.get("claude", {})
+    entries = cal.get("leaderboard", [])
+
+    trained = next((e for e in entries if _is_trained(e)), None)
+    base = next(
+        (e for e in entries if e.get("agent") == "openai_compatible" and not _is_trained(e)),
+        None,
+    )
+    claude = next((e for e in entries if e.get("agent") == "claude"), None)
 
     points: list[dict[str, Any]] = []
-    if qwen:
-        points.append({"label": "Qwen base", "reward": float(qwen.get("mean_reward", 0.0))})
-    after = qwen.get("post_rl_mean_reward")
+    if base:
+        points.append({"label": "Qwen base", "reward": float(base.get("mean_reward", 0.0))})
+
+    after = None
+    if trained is not None:
+        after = float(trained.get("mean_reward", 0.0))
+    elif base is not None and base.get("post_rl_mean_reward") is not None:
+        after = float(base["post_rl_mean_reward"])
     if after is not None:
-        points.append({"label": "Qwen + RL", "reward": float(after)})
+        points.append({"label": "Qwen + RL", "reward": after})
 
     return {
         "points": points,
