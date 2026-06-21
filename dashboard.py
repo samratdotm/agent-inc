@@ -84,6 +84,13 @@ st.markdown(
         background: #07080A; border: 1px solid #191c22 !important; border-radius: 8px;
         padding: 1.15rem 1.4rem 1.35rem; margin-bottom: 0.55rem;
       }
+      /* scroll-triggered reveal — pure CSS (Chrome/Edge 115+); degrades to no-op elsewhere */
+      @keyframes reveal { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: none; } }
+      @supports (animation-timeline: view()) {
+        [data-testid="stVerticalBlockBorderWrapper"] {
+          animation: reveal linear both; animation-timeline: view(); animation-range: entry 5% cover 24%;
+        }
+      }
       /* numbered section heads */
       .sec-head { margin-bottom: 0.85rem; }
       .eyebrow { color: #4D9FFF; font-size: 0.62rem; letter-spacing: 0.24em; text-transform: uppercase; font-weight: 600; }
