@@ -24,7 +24,7 @@
     {
       "model": "Qwen/Qwen3.5-4B",
       "agent": "openai_compatible",
-      "mean_reward": 0.263,
+      "mean_reward": 0.327,
       "std": 0.289,
       "success_rate": 0.133,
       "job": "https://hud.ai/jobs/f5b5f04ef7784468905b87c89f1598c8",
@@ -34,12 +34,17 @@
       "rl_baseline_mean_reward": 0.327
     }
   ],
-  "rl_runway": "Qwen base 0.263 -> RL target ~0.5+ (before/after delta is the demo headline).",
+  "rl_runway": "Qwen base 0.327 \u2192 Qwen+RL 0.647 (+0.321) \u2014 closed ~half the gap to Claude (0.951).",
   "history": {
     "pre_gate_qwen": {
       "mean_reward": 0.529,
       "std": 0.162,
       "note": "0.45 floor from offer-without-delivery inflated the mean"
+    },
+    "phase1_calibration_qwen": {
+      "mean_reward": 0.263,
+      "job": "https://hud.ai/jobs/f5b5f04ef7784468905b87c89f1598c8",
+      "note": "Separate Phase 1 eval run (post-gate); within normal variance (std=0.289). RL baseline 0.327 is the authoritative before-RL number \u2014 it passed the plausibility floor and is what rl_train.py compared against."
     }
   }
 }
