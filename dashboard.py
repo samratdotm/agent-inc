@@ -89,6 +89,30 @@ else:
         if tc["runway"]:
             st.caption(tc["runway"])
 
+# the per-step learning curve — fills in once scripts/rl_train.py runs
+prog = data.training_progress()
+st.subheader("Training curve — reward per RL step")
+if not prog["available"]:
+    st.caption(
+        "⏳ Not run yet — auto-plots once `scripts/rl_train.py` writes "
+        "`results/training_curve.jsonl` (baseline → GRPO steps → final)."
+    )
+else:
+    curve_col, stat_col = st.columns([3, 1])
+    with curve_col:
+        cdf = pd.DataFrame(prog["points"]).set_index("step")["reward"]
+        st.line_chart(cdf.to_frame("Qwen reward"), height=300)
+    with stat_col:
+        if prog["baseline"] is not None:
+            st.metric("Baseline", f"{prog['baseline']:.3f}")
+        if prog["final"] is not None:
+            st.metric(
+                "After training",
+                f"{prog['final']:.3f}",
+                delta=(f"{prog['delta']:+.3f}" if prog["delta"] is not None else None),
+            )
+        st.caption(f"{len(prog['points'])} step points")
+
 st.divider()
 
 # ── 3. per-scenario breakdown ────────────────────────────────────────────────────
