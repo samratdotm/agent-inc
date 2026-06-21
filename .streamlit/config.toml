@@ -1,0 +1,7 @@
+# Agent Inc. dashboard theme — a restrained dark palette with a single indigo accent.
+[theme]
+base = "dark"
+primaryColor = "#6E8BFF"
+backgroundColor = "#0B0E14"
+secondaryBackgroundColor = "#141925"
+textColor = "#E6E9F2"
