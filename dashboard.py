@@ -73,7 +73,9 @@ lr_a, lr_b, lr_c = st.columns([3, 2, 1])
 sel_sid = lr_a.selectbox(
     "Scenario", _sids, index=(_sids.index("easy_ticket_triage") if "easy_ticket_triage" in _sids else 0)
 )
-sel_model = lr_b.selectbox("Model", ["claude-sonnet-4-6", "gemini-3.1-pro-preview"], index=0)
+sel_model = lr_b.selectbox(
+    "Model", ["claude-sonnet-4-6", "gemini-3.1-pro-preview", "Qwen/Qwen3.5-4B"], index=0
+)
 run_now = lr_c.button("Run ▶", type="primary")
 if run_now:
     with st.spinner(f"Running '{sel_sid}' with {sel_model} — live via HUD gateway, ~30s…"):
