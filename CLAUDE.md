@@ -46,4 +46,4 @@ Reject any baseline below the plausibility floor. Label data real / sample / pen
 ## Run / status
 - `uv sync` · `uv run pytest tests/ -q` (offline) · `hud eval tasks.py claude -y --gateway`
 - RL status anytime: `bash scripts/rl_status.sh`
-- More: `STATUS.md` (current state + the RL result + how to resume — READ THIS FIRST), `README.md` (overview), `CONTRACT.md` (P1/P2 interface seam), `RESULTS_INTEGRITY.md` (honesty rules).
+- More: `STATUS.md` (current state + the RL result + how to resume — READ THIS FIRST), `LEARNINGS.md` (the full journey, the infra debugging, and RL lessons — for learning/reference), `README.md` (overview), `CONTRACT.md` (P1/P2 interface seam), `RESULTS_INTEGRITY.md` (honesty rules).
