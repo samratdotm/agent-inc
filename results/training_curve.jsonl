@@ -1,0 +1,17 @@
+{"step": -1, "reward": 0.3266666666666667, "phase": "baseline"}
+{"step": 0, "reward": 0.3961979166666667, "phase": "train"}
+{"step": 1, "reward": 0.37744791666666666, "phase": "train"}
+{"step": 2, "reward": 0.39375000000000004, "phase": "train"}
+{"step": 3, "reward": 0.42473958333333334, "phase": "train"}
+{"step": 4, "reward": 0.42161458333333335, "phase": "train"}
+{"step": 5, "reward": 0.37994791666666666, "phase": "train"}
+{"step": 6, "reward": 0.42265625, "phase": "train"}
+{"step": 7, "reward": 0.46020833333333333, "phase": "train"}
+{"step": 8, "reward": 0.5208035714285714, "phase": "train"}
+{"step": 9, "reward": 0.585625, "phase": "train"}
+{"step": 10, "reward": 0.5021354166666666, "phase": "train"}
+{"step": 11, "reward": 0.5834374999999999, "phase": "train"}
+{"step": 12, "reward": 0.5909375, "phase": "train"}
+{"step": 13, "reward": 0.6294270833333333, "phase": "train"}
+{"step": 14, "reward": 0.689032738095238, "phase": "train"}
+{"step": 16, "reward": 0.6473863636363636, "phase": "final"}
