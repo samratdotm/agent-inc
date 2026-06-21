@@ -9,6 +9,7 @@ breakdown. All data access goes through dashboard_data.py — this file is the v
 (styling included). Theme lives in .streamlit/config.toml.
 """
 
+import altair as alt
 import pandas as pd
 import streamlit as st
 
@@ -16,6 +17,43 @@ import dashboard_data as data
 import live_run
 
 ACCENT = "#4D9FFF"  # vivid chart series — color pops on the black SpaceX canvas
+
+# ── styled Altair charts (clean, transparent, SpaceX-themed axes) ──────────────
+_AX = {
+    "labelColor": "#8a8a8a", "labelFont": "Saira", "labelFontSize": 11,
+    "titleColor": "#8a8a8a", "domainColor": "#2a2a2a", "tickColor": "#2a2a2a",
+}
+
+
+def _pro_bar(df, x, y, *, height=300, ylim=(0.0, 1.0), sort="-y", label_fmt=".2f"):
+    """Rounded bars + value labels + subtle dashed grid on a transparent canvas."""
+    if ylim is None:
+        ymax = float(df[y].max()) if len(df) else 1.0
+        ylim = (0.0, ymax * 1.2 if ymax > 0 else 1.0)
+    x_enc = alt.X(f"{x}:N", sort=sort, title=None,
+                  axis=alt.Axis(labelAngle=-22, labelLimit=150, grid=False, ticks=False, **_AX))
+    y_enc = alt.Y(f"{y}:Q", title=None, scale=alt.Scale(domain=list(ylim)),
+                  axis=alt.Axis(grid=True, gridColor="#1a1a1a", gridDash=[2, 3], ticks=False,
+                                domain=False, format=".1f", **_AX))
+    base = alt.Chart(df)
+    bars = base.mark_bar(color=ACCENT, opacity=0.9, cornerRadiusTopLeft=4, cornerRadiusTopRight=4).encode(x=x_enc, y=y_enc)
+    labels = base.mark_text(dy=-8, color="#d8d8d8", font="Saira", fontSize=11).encode(
+        x=x_enc, y=y_enc, text=alt.Text(f"{y}:Q", format=label_fmt))
+    return ((bars + labels).properties(width="container", height=height)
+            .configure_view(strokeWidth=0).configure(background="rgba(0,0,0,0)"))
+
+
+def _pro_line(df, x, y, *, height=300):
+    """Clean line + points for the training curve."""
+    line = alt.Chart(df).mark_line(
+        color=ACCENT, strokeWidth=2.5, point=alt.OverlayMarkDef(color=ACCENT, fill=ACCENT, size=55)
+    ).encode(
+        x=alt.X(f"{x}:Q", title=None, axis=alt.Axis(grid=False, ticks=False, **_AX)),
+        y=alt.Y(f"{y}:Q", title=None, axis=alt.Axis(grid=True, gridColor="#1a1a1a", gridDash=[2, 3],
+                                                     ticks=False, domain=False, format=".2f", **_AX)),
+    )
+    return (line.properties(width="container", height=height)
+            .configure_view(strokeWidth=0).configure(background="rgba(0,0,0,0)"))
 
 st.set_page_config(page_title="Agent Inc.", page_icon="📊", layout="wide")
 
@@ -76,7 +114,7 @@ else:
     lb = pd.DataFrame(rows)
     chart_col, table_col = st.columns([1, 1])
     with chart_col:
-        st.bar_chart(lb.set_index("model")["mean_reward"], height=300, color=ACCENT)
+        st.altair_chart(_pro_bar(lb, "model", "mean_reward", height=300, ylim=(0.0, 1.0)), theme=None)
     with table_col:
         lb_disp = lb.copy()
         lb_disp["success_rate"] = lb_disp["success_rate"] * 100.0  # fraction -> percent
@@ -126,7 +164,7 @@ if run_now:
         with bc:
             if res["subscores"]:
                 bd = pd.DataFrame(res["subscores"])
-                st.bar_chart(bd.set_index("name")["contribution"], height=240, color=ACCENT)
+                st.altair_chart(_pro_bar(bd, "name", "contribution", height=240, ylim=None), theme=None)
                 st.dataframe(bd, hide_index=True, width="stretch")
             else:
                 st.info("No per-criterion breakdown returned for this run.")
@@ -150,7 +188,11 @@ else:
         bars["RL target"] = tc["target"]
         if tc["frontier_ceiling"] is not None:
             bars["Claude (ceiling)"] = tc["frontier_ceiling"]
-        st.bar_chart(pd.DataFrame({"reward": bars}), height=320, color=ACCENT)
+        runway_df = pd.DataFrame({"stage": list(bars.keys()), "reward": list(bars.values())})
+        st.altair_chart(
+            _pro_bar(runway_df, "stage", "reward", height=320, ylim=(0.0, 1.0), sort=list(bars.keys())),
+            theme=None,
+        )
     with note_col:
         base = tc["points"][0]["reward"]
         st.metric("Qwen base", f"{base:.3f}")
@@ -173,8 +215,8 @@ if not prog["available"]:
 else:
     curve_col, stat_col = st.columns([3, 1])
     with curve_col:
-        cdf = pd.DataFrame(prog["points"]).set_index("step")["reward"]
-        st.line_chart(cdf.to_frame("Qwen reward"), height=300, color=ACCENT)
+        curve_df = pd.DataFrame(prog["points"])
+        st.altair_chart(_pro_line(curve_df, "step", "reward", height=300), theme=None)
     with stat_col:
         if prog["baseline"] is not None:
             st.metric("Baseline", f"{prog['baseline']:.3f}")
@@ -232,7 +274,7 @@ else:
         )
         bcol, tcol = st.columns([1, 1])
         with bcol:
-            st.bar_chart(bd.set_index("criterion")["contribution"], height=280, color=ACCENT)
+            st.altair_chart(_pro_bar(bd, "criterion", "contribution", height=280, ylim=None), theme=None)
         with tcol:
             st.dataframe(bd, hide_index=True, width="stretch")
             st.metric("Total reward", f"{match[0]['reward']:.3f}")
