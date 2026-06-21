@@ -201,7 +201,11 @@ else:
             st.metric("Qwen + RL", f"{after:.3f}", delta=f"{after - base:+.3f}")
         else:
             st.metric("RL target", f"{tc['target']:.2f}", delta="pending training")
-        if tc["runway"]:
+        if tc["has_after"]:
+            b, a, t = tc["points"][0]["reward"], tc["points"][-1]["reward"], tc["target"]
+            beat = "past" if a >= t else "toward"
+            st.caption(f"Open model trained {b:.3f} → {a:.3f} ({a - b:+.3f}) — {beat} the {t:.2f} target.")
+        elif tc["runway"]:
             st.caption(tc["runway"])
 
 # the per-step learning curve — fills in once scripts/rl_train.py runs
