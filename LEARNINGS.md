@@ -138,6 +138,39 @@ last few lines" is how you miss the failure.** Honesty over a confident-sounding
 
 ---
 
+## 8. The outcome — and the honest reflection
+
+**We were not selected (top-10) at the hackathon.** After a full-night build that produced a clean,
+real RSI result, that stung. Captured here honestly, because the reflection is the most useful part.
+
+**Why (most likely):** the *substance* was strong — a working env, a measured **0.327 → 0.647** RL
+improvement, and result-integrity engineering. But hackathon judging happens **in the room, in minutes**,
+on a 4-criterion rubric (Completion 0.2 / Originality 0.3 / **Design 0.2** / Technology 0.3). We had already
+self-identified **Design/UX as our weakest axis** — and that's exactly the dimension decided by demo polish
+and the live presentation, not by the depth of the result. **A strong result can lose to a slicker 90 seconds.**
+
+**The big lesson — presentation is a first-class deliverable, not an afterthought.** Judges experience the
+*demo*, not the repo. Our deepest work (the infra resilience, the integrity guards, the honest RL loop) was
+largely *invisible* in a 90-second room. Invest in the demo UX + the narrative **as early as the engineering.**
+
+**What we'd do differently:**
+- Build the demo/dashboard **in parallel from day 1** (not as "Phase 4"), and rehearse the 90s pitch 3×.
+- **Lead with the live "agent runs a business" moment + the one-glance before/after** (0.33→0.65) — make the
+  win legible in *5 seconds*.
+- Keep the infra-saga **out of the pitch** — it's a great blog post, a poor pitch beat.
+
+**What still stands (more durable than a ribbon):**
+- A working, MIT-licensed, public RL environment that trains a 4B open model to *run a business*.
+- A real, honest, *generalized* RSI result (0.327 → 0.647) — produced on *failing* infra **without fabricating
+  a number** (we refused to ship a contaminated baseline even when it would have looked better).
+- Deep, documented learnings (this file): RL mechanics, on-policy GRPO, RSI, distributed-systems debugging,
+  and result-integrity engineering.
+- A genuinely portfolio/blog-worthy story: *"a 4B model learning to run a business — the honest 0.33→0.65,
+  and surviving the infra meltdown."*
+
+**The principle worth keeping:** refusing to ship a number we couldn't trust didn't win the bracket — but it's
+the right way to do science, and it's a strength, not a cost. Optimize the *presentation* next time; never the *truth*.
+
 ## Pointers
 - Result + how to resume: `STATUS.md` · Honesty rules: `RESULTS_INTEGRITY.md` · Project facts: `CLAUDE.md`
 - The numbers: `results/calibration.json`, `results/training_curve.jsonl`, `results/rl_done.json`
