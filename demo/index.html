@@ -1,0 +1,1139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Agent Inc. — teaching models to run a business</title>
+<style>
+/* ============================================================= design tokens */
+:root{
+  --bg:#070b14; --bg2:#0a1020; --panel:#0e1626; --panel2:#121d31;
+  --line:#1c2a44; --line2:#26385a;
+  --ink:#e8eefc; --ink-dim:#9fb0d0; --ink-mute:#64748b;
+  --cyan:#22d3ee; --teal:#2dd4bf; --gold:#fbbf24; --green:#34d399;
+  --red:#f87171; --purple:#a78bfa; --blue:#60a5fa;
+  --glow:0 0 0 1px rgba(34,211,238,.15), 0 0 24px rgba(34,211,238,.10);
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+  -webkit-font-smoothing:antialiased;line-height:1.55;overflow-x:hidden;
+}
+/* faint mission-control grid + scanline */
+body::before{
+  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(34,211,238,.035) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(34,211,238,.035) 1px,transparent 1px);
+  background-size:46px 46px;mask-image:radial-gradient(ellipse 90% 70% at 50% 0%,#000 30%,transparent 80%);
+}
+h1,h2,h3{line-height:1.1;letter-spacing:-.02em;margin:0}
+a{color:inherit}
+.mono{font-family:var(--mono)}
+.dim{color:var(--ink-dim)} .mute{color:var(--ink-mute)}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px;position:relative;z-index:1}
+section{padding:86px 0;border-top:1px solid var(--line);position:relative;z-index:1}
+.kicker{font-family:var(--mono);font-size:12px;letter-spacing:.28em;text-transform:uppercase;color:var(--cyan);margin-bottom:14px}
+.sec-title{font-size:clamp(28px,4.4vw,46px);font-weight:800}
+.sec-sub{color:var(--ink-dim);font-size:18px;max-width:680px;margin-top:14px}
+
+/* ============================================================= top nav */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:50;height:56px;display:flex;align-items:center;
+  background:rgba(7,11,20,.78);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);
+}
+nav .wrap{display:flex;align-items:center;gap:18px;width:100%}
+.brand{font-family:var(--mono);font-weight:700;letter-spacing:.12em;font-size:14px;display:flex;align-items:center;gap:9px}
+.brand .dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.navlinks{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
+.navlinks a{font-family:var(--mono);font-size:12px;color:var(--ink-dim);text-decoration:none;padding:6px 10px;border-radius:7px}
+.navlinks a:hover{color:var(--ink);background:var(--panel)}
+.play-btn{
+  font-family:var(--mono);font-size:12px;font-weight:700;color:#04121a;background:var(--cyan);
+  border:0;padding:8px 14px;border-radius:8px;cursor:pointer;letter-spacing:.08em;box-shadow:0 0 18px rgba(34,211,238,.4);
+}
+.play-btn:hover{filter:brightness(1.1)}
+@media(max-width:880px){.navlinks{display:none}}
+
+/* ============================================================= hero */
+.hero{padding:150px 0 96px;text-align:center;overflow:hidden}
+.hero .badge{
+  display:inline-flex;gap:8px;align-items:center;font-family:var(--mono);font-size:12px;letter-spacing:.12em;
+  color:var(--cyan);border:1px solid var(--line2);background:var(--panel);padding:7px 14px;border-radius:999px;margin-bottom:26px;
+}
+.hero h1{font-size:clamp(34px,6.4vw,76px);font-weight:850;letter-spacing:-.03em}
+.hero h1 .grad{background:linear-gradient(100deg,var(--cyan),var(--teal),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p.lede{font-size:clamp(17px,2.2vw,22px);color:var(--ink-dim);max-width:660px;margin:24px auto 0}
+.hero-cta{display:flex;gap:14px;justify-content:center;margin-top:38px;flex-wrap:wrap}
+.btn{font-family:var(--mono);font-size:14px;font-weight:600;padding:13px 22px;border-radius:10px;cursor:pointer;border:1px solid var(--line2);text-decoration:none;display:inline-flex;align-items:center;gap:9px}
+.btn.primary{background:var(--cyan);color:#04121a;border-color:var(--cyan);box-shadow:0 0 24px rgba(34,211,238,.35)}
+.btn.ghost{background:var(--panel);color:var(--ink)}
+.btn:hover{transform:translateY(-1px)}
+/* the big before->after telemetry */
+.telemetry{display:flex;gap:18px;justify-content:center;align-items:stretch;margin-top:56px;flex-wrap:wrap}
+.tcard{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px 28px;min-width:170px;box-shadow:var(--glow)}
+.tcard .lab{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-mute)}
+.tcard .val{font-family:var(--mono);font-size:44px;font-weight:800;margin-top:8px}
+.tcard.base .val{color:var(--ink-dim)} .tcard.gain .val{color:var(--gold)} .tcard.after .val{color:var(--green)}
+.tcard .sub{font-size:12px;color:var(--ink-mute);margin-top:4px}
+.tarrow{display:flex;align-items:center;font-size:30px;color:var(--cyan)}
+@media(max-width:620px){.tarrow{transform:rotate(90deg)}}
+
+/* ============================================================= generic cards/grid */
+.cols{display:grid;gap:18px;margin-top:40px}
+.c2{grid-template-columns:1fr 1fr} .c3{grid-template-columns:repeat(3,1fr)} .c4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:880px){.c2,.c3,.c4{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px}
+.card h3{font-size:18px;margin-bottom:8px}
+.card p{color:var(--ink-dim);font-size:15px;margin:0}
+.pill{display:inline-block;font-family:var(--mono);font-size:11px;padding:3px 9px;border-radius:999px;border:1px solid var(--line2);color:var(--ink-dim)}
+.tag-real{color:var(--green);border-color:rgba(52,211,153,.35);background:rgba(52,211,153,.08)}
+.tag-sample{color:var(--gold);border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.08)}
+.tag-rejected{color:var(--red);border-color:rgba(248,113,113,.35);background:rgba(248,113,113,.08)}
+
+/* reveal on scroll */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease}
+.reveal.in{opacity:1;transform:none}
+
+/* ============================================================= architecture */
+.arch{display:flex;align-items:stretch;gap:0;flex-wrap:wrap;margin-top:40px}
+.node{flex:1;min-width:150px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;cursor:pointer;transition:.25s;position:relative}
+.node:hover,.node.active{border-color:var(--cyan);box-shadow:var(--glow);transform:translateY(-3px)}
+.node .ico{font-size:24px}
+.node .nm{font-family:var(--mono);font-size:13px;font-weight:700;margin-top:8px}
+.node .ds{font-size:12px;color:var(--ink-mute);margin-top:4px}
+.flowarrow{display:flex;align-items:center;color:var(--cyan);font-size:22px;padding:0 6px}
+@media(max-width:880px){.flowarrow{transform:rotate(90deg);width:100%;justify-content:center;padding:6px 0}}
+.arch-detail{margin-top:22px;background:var(--bg2);border:1px solid var(--line2);border-radius:14px;padding:22px;min-height:120px}
+.arch-detail h3{font-family:var(--mono);color:var(--cyan);font-size:16px}
+.arch-detail .sig{font-family:var(--mono);font-size:13px;color:var(--teal);background:#08111f;border:1px solid var(--line);padding:10px 12px;border-radius:8px;margin:12px 0;display:block;overflow-x:auto}
+.toolrow{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px dashed var(--line)}
+.toolrow:last-child{border-bottom:0}
+.toolrow .tn{font-family:var(--mono);color:var(--ink)} .toolrow .td{color:var(--ink-mute);font-size:13px;text-align:right}
+
+/* ============================================================= replay (quest) */
+.quest{display:grid;grid-template-columns:1.15fr .85fr;gap:18px;margin-top:40px}
+@media(max-width:880px){.quest{grid-template-columns:1fr}}
+.quest-main{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px;position:relative;overflow:hidden}
+.quest-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.quest-head .qt{font-family:var(--mono);font-weight:700;letter-spacing:.06em}
+.budgetchip{font-family:var(--mono);color:var(--gold);border:1px solid rgba(251,191,36,.4);background:rgba(251,191,36,.08);padding:5px 11px;border-radius:999px;font-size:13px}
+.steps{display:flex;flex-direction:column;gap:10px}
+.step{display:flex;gap:14px;align-items:flex-start;padding:13px 14px;border:1px solid var(--line);border-radius:11px;background:var(--bg2);opacity:.4;transition:.4s}
+.step.done{opacity:1;border-color:var(--line2)}
+.step.active{opacity:1;border-color:var(--cyan);box-shadow:var(--glow)}
+.step .sico{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:var(--panel2);color:var(--cyan);flex-shrink:0;border:1px solid var(--line)}
+.step.done .sico{background:rgba(52,211,153,.15);border-color:var(--green);color:var(--green)}
+.step .stitle{font-family:var(--mono);font-size:13px;font-weight:700}
+.step .sbody{font-size:13px;color:var(--ink-dim);margin-top:3px}
+.step .sbody code{font-family:var(--mono);color:var(--teal);background:#08111f;padding:1px 6px;border-radius:5px;font-size:12px}
+.honest-badge{display:none;margin-top:16px;text-align:center;font-family:var(--mono);font-weight:800;letter-spacing:.1em;color:var(--green);
+  border:1px solid var(--green);border-radius:10px;padding:12px;background:rgba(52,211,153,.08);box-shadow:0 0 24px rgba(52,211,153,.25)}
+.honest-badge.show{display:block;animation:pop .5s}
+@keyframes pop{0%{transform:scale(.85);opacity:0}60%{transform:scale(1.04)}100%{transform:scale(1);opacity:1}}
+
+/* scorecard */
+.score-side{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px;display:flex;flex-direction:column}
+.xpbar-wrap{margin-bottom:6px}
+.xprow{display:flex;justify-content:space-between;font-family:var(--mono);font-size:12px;margin-bottom:5px}
+.bar{height:9px;border-radius:99px;background:var(--bg2);overflow:hidden;border:1px solid var(--line)}
+.bar > i{display:block;height:100%;width:0;border-radius:99px;transition:width 1.1s cubic-bezier(.2,.8,.2,1)}
+.b-completeness>i{background:var(--blue)} .b-quality>i{background:var(--purple)} .b-pricing>i{background:var(--gold)}
+.b-efficiency>i{background:var(--teal)} .b-policy>i{background:var(--green)}
+.score-side .grid5{display:flex;flex-direction:column;gap:13px;margin:6px 0 18px}
+.total-reward{margin-top:auto;text-align:center;border-top:1px solid var(--line);padding-top:18px}
+.total-reward .num{font-family:var(--mono);font-size:46px;font-weight:850;color:var(--green)}
+.coins{font-family:var(--mono);color:var(--gold);font-size:13px;margin-top:4px;min-height:18px}
+.replay-ctrl{display:flex;gap:10px;margin-top:22px}
+.gate-note{margin-top:24px;border-left:3px solid var(--gold);background:var(--bg2);padding:14px 18px;border-radius:0 10px 10px 0;font-size:14px;color:var(--ink-dim)}
+.gate-note b{color:var(--gold)}
+
+/* ============================================================= reward engine */
+.reward-split{display:flex;gap:0;margin-top:34px;border-radius:12px;overflow:hidden;border:1px solid var(--line);font-family:var(--mono);font-size:13px}
+.reward-split .det{flex:0 0 70%;background:linear-gradient(90deg,rgba(34,211,238,.18),rgba(45,212,191,.1));padding:16px 20px;border-right:1px solid var(--line)}
+.reward-split .jud{flex:1;background:rgba(167,139,250,.12);padding:16px 20px}
+.reward-split .lab{color:var(--ink-mute);font-size:11px;letter-spacing:.12em;text-transform:uppercase}
+.reward-split .v{font-size:22px;font-weight:800;margin-top:4px}
+.critbars{margin-top:26px;display:flex;flex-direction:column;gap:16px}
+.critrow{display:grid;grid-template-columns:160px 1fr 64px;gap:14px;align-items:center}
+.critrow .cl{font-family:var(--mono);font-size:13px}
+.critrow .cl small{display:block;color:var(--ink-mute);font-size:11px}
+.critrow .ck{font-family:var(--mono);font-size:13px;text-align:right;color:var(--ink-dim)}
+@media(max-width:620px){.critrow{grid-template-columns:120px 1fr 48px}}
+
+/* ============================================================= training */
+.train-grid{display:grid;grid-template-columns:1.4fr .6fr;gap:22px;margin-top:40px;align-items:stretch}
+@media(max-width:880px){.train-grid{grid-template-columns:1fr}}
+.chart-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px}
+.level-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px;display:flex;flex-direction:column;justify-content:center;gap:20px}
+.level-card .lvl{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-mute)}
+.level-card .big{font-family:var(--mono);font-size:40px;font-weight:850}
+.legend{display:flex;gap:18px;flex-wrap:wrap;font-family:var(--mono);font-size:12px;color:var(--ink-dim);margin-top:12px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:middle}
+
+/* ============================================================= leaderboard */
+.lb{margin-top:40px;display:flex;flex-direction:column;gap:14px}
+.lbrow{display:grid;grid-template-columns:210px 1fr 80px;gap:16px;align-items:center}
+@media(max-width:620px){.lbrow{grid-template-columns:120px 1fr 60px}}
+.lbrow .nm{font-family:var(--mono);font-size:14px;display:flex;align-items:center;gap:8px}
+.lbrow .track{height:30px;border-radius:8px;background:var(--bg2);border:1px solid var(--line);overflow:hidden}
+.lbrow .track > i{display:block;height:100%;width:0;transition:width 1.3s cubic-bezier(.2,.8,.2,1);border-radius:8px}
+.lbrow .sc{font-family:var(--mono);font-size:15px;font-weight:700;text-align:right}
+.lbrow.hl .nm{color:var(--green)} .lbrow.hl .sc{color:var(--green)}
+
+/* ============================================================= scenarios */
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-top:30px}
+.chip{font-family:var(--mono);font-size:12px;padding:7px 13px;border-radius:999px;border:1px solid var(--line2);background:var(--panel);color:var(--ink-dim);cursor:pointer}
+.chip.on{background:var(--cyan);color:#04121a;border-color:var(--cyan)}
+.scgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;margin-top:22px}
+.sccard{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:15px;cursor:pointer;transition:.2s}
+.sccard:hover{border-color:var(--cyan);transform:translateY(-2px)}
+.sccard .sid{font-family:var(--mono);font-size:12px;color:var(--ink);font-weight:700;word-break:break-word}
+.sccard .meta{display:flex;justify-content:space-between;margin-top:10px;align-items:center}
+.dbadge{font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:999px;text-transform:uppercase;letter-spacing:.08em}
+.d-easy{background:rgba(52,211,153,.14);color:var(--green)} .d-medium{background:rgba(251,191,36,.14);color:var(--gold)} .d-hard{background:rgba(248,113,113,.14);color:var(--red)}
+.sccard .dom{font-family:var(--mono);font-size:11px;color:var(--ink-mute)}
+.sccard .bud{font-family:var(--mono);font-size:13px;color:var(--gold);margin-top:6px}
+/* modal */
+.modal{position:fixed;inset:0;z-index:80;background:rgba(3,6,12,.8);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:24px}
+.modal.show{display:flex}
+.modal-card{background:var(--panel);border:1px solid var(--line2);border-radius:16px;max-width:620px;width:100%;padding:28px;max-height:86vh;overflow:auto;box-shadow:0 30px 80px rgba(0,0,0,.6)}
+.modal-card h3{font-family:var(--mono);font-size:16px;color:var(--cyan)}
+.modal-card .kv{margin-top:16px}
+.modal-card .kv .k{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:5px}
+.taglist{display:flex;gap:6px;flex-wrap:wrap}
+.taglist span{font-family:var(--mono);font-size:12px;padding:3px 9px;border-radius:6px;background:var(--bg2);border:1px solid var(--line)}
+.taglist.ok span{color:var(--green)} .taglist.no span{color:var(--red)}
+.x-close{float:right;cursor:pointer;color:var(--ink-mute);font-size:22px;line-height:1}
+
+/* ============================================================= distributions */
+.dist-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:34px}
+@media(max-width:880px){.dist-grid{grid-template-columns:1fr}}
+.stdrow{display:grid;grid-template-columns:200px 1fr;gap:14px;align-items:center;padding:11px 0;border-bottom:1px dashed var(--line);font-family:var(--mono);font-size:13px}
+.stdrow:last-child{border-bottom:0}
+.gbar{height:14px;border-radius:99px;background:var(--bg2);border:1px solid var(--line);position:relative}
+.gbar > i{position:absolute;top:-3px;height:20px;width:3px;background:var(--cyan);border-radius:2px}
+.gbar > b{position:absolute;top:2px;bottom:2px;background:rgba(34,211,238,.18);border-radius:99px}
+
+/* ============================================================= integrity / receipts */
+.receipts{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:16px;margin-top:26px}
+.receipt{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.receipt img{width:100%;display:block;aspect-ratio:16/10;object-fit:contain;background:#05070d;cursor:zoom-in;border-bottom:1px solid var(--line);transition:.2s}
+.receipt img:hover{filter:brightness(1.08)}
+.receipt .ph{aspect-ratio:16/10;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--ink-mute);font-family:var(--mono);font-size:12px;text-align:center;padding:16px;border-bottom:1px solid var(--line)}
+/* lightbox */
+#lightbox{position:fixed;inset:0;z-index:120;background:rgba(2,4,9,.92);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:40px;cursor:zoom-out}
+#lightbox.show{display:flex}
+#lightbox img{max-width:96vw;max-height:92vh;border-radius:10px;border:1px solid var(--line2);box-shadow:0 30px 90px rgba(0,0,0,.7)}
+#lightbox .lbcap{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:13px;color:var(--ink-dim);background:rgba(10,16,32,.9);padding:8px 16px;border-radius:999px;border:1px solid var(--line2)}
+#lightbox .lbx{position:fixed;top:22px;right:28px;font-size:30px;color:var(--ink-dim);cursor:pointer}
+
+/* ============================================================= runner */
+.runner-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:34px}
+@media(max-width:880px){.runner-grid{grid-template-columns:1fr}}
+.runner-input label{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-mute);margin:16px 0 7px}
+.runner-input label:first-child{margin-top:0}
+.runner-input select,.runner-input textarea,.runner-input input[type=number]{
+  width:100%;background:var(--bg2);border:1px solid var(--line2);border-radius:9px;color:var(--ink);
+  font-family:var(--mono);font-size:13px;padding:10px 12px}
+.runner-input textarea{min-height:120px;resize:vertical;line-height:1.5}
+.modechip{font-family:var(--mono);font-size:11px;padding:4px 11px;border-radius:999px;border:1px solid var(--line2)}
+.mode-live{color:var(--green);border-color:rgba(52,211,153,.4);background:rgba(52,211,153,.08)}
+.mode-offline{color:var(--gold);border-color:rgba(251,191,36,.4);background:rgba(251,191,36,.08)}
+.claimrow{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12px;padding:4px 0}
+.claimrow.bad{color:var(--red)} .claimrow input{accent-color:var(--cyan)}
+.runbtn{width:100%;justify-content:center;margin-top:20px;font-size:15px;padding:14px}
+.runner-output{display:flex;flex-direction:column;min-height:360px;position:relative}
+.run-idle{margin:auto;text-align:center;color:var(--ink-mute);font-family:var(--mono);font-size:13px;padding:30px}
+.run-busy{margin:auto;text-align:center}
+.spinner{width:54px;height:54px;border-radius:50%;border:3px solid var(--line2);border-top-color:var(--cyan);margin:0 auto 18px;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.run-timer{font-family:var(--mono);font-size:30px;font-weight:800;color:var(--cyan)}
+.run-busy .sub{color:var(--ink-mute);font-size:12px;font-family:var(--mono);margin-top:6px}
+.result-top{display:flex;align-items:center;gap:18px;border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:16px}
+.result-top .big{font-family:var(--mono);font-size:46px;font-weight:850;line-height:1}
+.result-top .meta{font-family:var(--mono);font-size:12px;color:var(--ink-mute)}
+.result-top .meta b{color:var(--ink-dim)}
+.rbar{display:grid;grid-template-columns:96px 1fr 46px;gap:10px;align-items:center;margin-bottom:9px;font-family:var(--mono);font-size:12px}
+.rbar .v{text-align:right;color:var(--ink-dim)}
+.aibox{margin-top:16px;border-radius:10px;padding:13px 15px;font-size:13px}
+.aibox.improve{background:rgba(248,113,113,.07);border:1px solid rgba(248,113,113,.25)}
+.aibox.win{background:rgba(52,211,153,.07);border:1px solid rgba(52,211,153,.22)}
+.aibox h4{margin:0 0 7px;font-family:var(--mono);font-size:12px;letter-spacing:.08em}
+.aibox.improve h4{color:var(--red)} .aibox.win h4{color:var(--green)}
+.aibox ul{margin:0;padding-left:18px;color:var(--ink-dim)} .aibox li{margin:3px 0}
+.receipt .cap{padding:11px 14px;font-size:13px;color:var(--ink-dim)}
+.receipt .cap b{color:var(--ink);font-family:var(--mono);font-size:12px}
+
+/* ============================================================= footer */
+footer{padding:60px 0 90px;border-top:1px solid var(--line);text-align:center}
+.stack{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:22px}
+.stack span{font-family:var(--mono);font-size:12px;color:var(--ink-dim);border:1px solid var(--line2);background:var(--panel);padding:7px 13px;border-radius:8px}
+
+/* ============================================================= play-mode HUD */
+#playhud{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(140%);z-index:90;
+  display:flex;align-items:center;gap:14px;background:rgba(10,16,32,.92);border:1px solid var(--cyan);
+  border-radius:999px;padding:10px 16px;backdrop-filter:blur(10px);box-shadow:0 0 30px rgba(34,211,238,.3);transition:transform .4s}
+#playhud.on{transform:translateX(-50%) translateY(0)}
+#playhud button{background:none;border:0;color:var(--ink);font-size:16px;cursor:pointer;font-family:var(--mono)}
+#playhud .pdots{display:flex;gap:6px}
+#playhud .pdots i{width:8px;height:8px;border-radius:50%;background:var(--line2);cursor:pointer}
+#playhud .pdots i.on{background:var(--cyan);box-shadow:0 0 8px var(--cyan)}
+#playhud .plabel{font-family:var(--mono);font-size:12px;color:var(--cyan);min-width:150px}
+</style>
+</head>
+<body>
+
+<!-- ================================================================= NAV -->
+<nav><div class="wrap">
+  <div class="brand"><span class="dot"></span>AGENT&nbsp;INC<span class="mute" style="font-weight:400">// mission control</span></div>
+  <div class="navlinks">
+    <a href="#why">Why</a><a href="#arch">Architecture</a><a href="#replay">Live loop</a>
+    <a href="#runner">Run it</a><a href="#reward">Reward</a><a href="#training">Training</a><a href="#leaderboard">Leaderboard</a>
+    <a href="#scenarios">Scenarios</a><a href="#integrity">Integrity</a>
+  </div>
+  <button class="play-btn" id="playToggle">▶ PLAY</button>
+</div></nav>
+
+<!-- ================================================================= HERO -->
+<header class="hero" id="top"><div class="wrap">
+  <div class="badge">⬡ HUD × YC FRONTIER RL HACKATHON · AUTONOMOUS BUSINESS TRACK</div>
+  <h1>SWE-bench taught models to&nbsp;code.<br><span class="grad">Agent Inc. teaches them to run a business.</span></h1>
+  <p class="lede">An RL environment where an agent reads a client brief, researches, makes a
+    truthful &amp; affordable offer, and ships a real deliverable — and only gets paid for honest, complete work.</p>
+  <div class="hero-cta">
+    <button class="btn primary" id="heroPlay">▶ Play the story</button>
+    <a class="btn ghost" href="#arch">Explore the build</a>
+  </div>
+
+  <div class="telemetry">
+    <div class="tcard base"><div class="lab">Open model · base</div><div class="val" id="heroBase">0.327</div><div class="sub">Qwen3.5-4B</div></div>
+    <div class="tarrow">→</div>
+    <div class="tcard after"><div class="lab">After RL</div><div class="val" id="heroAfter">0.647</div><div class="sub">16 GRPO steps</div></div>
+    <div class="tarrow">→</div>
+    <div class="tcard gain"><div class="lab">Improvement</div><div class="val" id="heroGain">+0.321</div><div class="sub">closed ~½ the gap to Claude</div></div>
+  </div>
+  <p class="mute mono" style="margin-top:30px;font-size:12px">All figures baked from canonical results · <span class="pill tag-real">real</span></p>
+</div></header>
+
+<!-- ================================================================= WHY -->
+<section id="why"><div class="wrap reveal">
+  <div class="kicker">The problem · why it's novel</div>
+  <h2 class="sec-title">Running a business is a harder RL task than it looks</h2>
+  <p class="sec-sub">Coding benchmarks score one thing: does it pass? A business engagement has to be
+    right on <b>four axes at once</b> — and the reward refuses to pay for promises.</p>
+  <div class="cols c4">
+    <div class="card"><h3>In scope</h3><p>The offer must cover everything the client actually asked for — no more, no less.</p></div>
+    <div class="card"><h3>Affordable</h3><p>Price has to land inside the client's budget band. Overcharge → rejected. Undercharge → money left on the table.</p></div>
+    <div class="card"><h3>Honest</h3><p>No claims the business can't back up. Promise SOC2 it doesn't have → the deal is policy-failed.</p></div>
+    <div class="card"><h3>Delivered</h3><p>A great pitch with no artifact earns almost nothing. <b>The delivery gate</b> halves offer credit and zeros efficiency.</p></div>
+  </div>
+  <p class="sec-sub" style="margin-top:28px">“You only get paid for honest, complete work” isn't a slogan — it's coded into the grader.</p>
+</div></section>
+
+<!-- ================================================================= ARCHITECTURE -->
+<section id="arch"><div class="wrap reveal">
+  <div class="kicker">How it's built · technology</div>
+  <h2 class="sec-title">One scenario JSON in. A graded reward out.</h2>
+  <p class="sec-sub">HUD v6 environment: 7 FastMCP tools, a hybrid grader, and GRPO training on the Tinker backend.
+    Click any stage.</p>
+  <div class="arch" id="archFlow"></div>
+  <div class="arch-detail" id="archDetail"></div>
+</div></section>
+
+<!-- ================================================================= REPLAY -->
+<section id="replay"><div class="wrap reveal">
+  <div class="kicker">The agent loop · live replay</div>
+  <h2 class="sec-title">Watch an engagement, step by step</h2>
+  <p class="sec-sub">A real scenario — <span class="mono">easy_ticket_triage</span>, a $100 ticket-classifier for a clinic.
+    The inputs are real; the score gauges are <span class="pill tag-sample">illustrative</span>.</p>
+
+  <div class="quest">
+    <div class="quest-main">
+      <div class="quest-head">
+        <div class="qt"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#22d3ee" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="3" y1="12" x2="21" y2="12"/></svg> QUEST: Northstar Clinic · ticket triage</div>
+        <div class="budgetchip" id="qBudget">budget $100</div>
+      </div>
+      <div class="steps" id="questSteps"></div>
+      <div class="honest-badge" id="honestBadge"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg> HONEST DEAL — OFFER ACCEPTED</div>
+      <div class="gate-note"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M12 3 22 20H2z"/><line x1="12" y1="10" x2="12" y2="14.5"/><line x1="12" y1="17.4" x2="12" y2="17.5"/></svg> <b>The delivery gate:</b> if the agent had sent that offer but never submitted a
+        deliverable, pricing &amp; policy credit are <b>halved</b> and efficiency drops to <b>0</b>. Promises don't pay.</div>
+    </div>
+
+    <div class="score-side">
+      <div class="grid5" id="scoreBars"></div>
+      <div class="total-reward">
+        <div class="lab mono mute" style="font-size:11px;letter-spacing:.16em">TOTAL REWARD</div>
+        <div class="num" id="totalReward">0.00</div>
+        <div class="coins" id="coinFx"></div>
+      </div>
+      <div class="replay-ctrl">
+        <button class="btn primary" id="replayRun" style="flex:1;justify-content:center">▶ Run engagement</button>
+        <button class="btn ghost" id="replayReset">↺</button>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- ================================================================= RUNNER -->
+<section id="runner"><div class="wrap reveal">
+  <div class="kicker">Try it yourself · interactive</div>
+  <h2 class="sec-title">Run a business scenario, scored live</h2>
+  <p class="sec-sub">Pick one of the 30 — or paste your own scenario JSON — and run it through the
+    <b>real grader</b>. You get the reward, how long it took, and exactly where it needs to improve.
+    <span class="modechip" id="modeChip">…</span></p>
+
+  <div class="runner-grid">
+    <div class="card runner-input">
+      <label>Scenario</label>
+      <select id="runScenario"></select>
+      <div id="customWrap" style="display:none">
+        <label>Paste scenario JSON <span class="mute" id="jsonValid"></span></label>
+        <textarea id="runJson" spellcheck="false" placeholder='{ "id":"my_scenario", "brief":"…", "budget":500, "budget_range":[300,500], "must_have":["…"], "company_can_do":["…"], "company_cannot_do":["…"], "reject_if_claims":["…"], "reference":"…", "tool_budget":12 }'></textarea>
+        <input type="file" id="runFile" accept="application/json,.json" style="margin-top:8px;font-family:var(--mono);font-size:12px;color:var(--ink-dim)">
+      </div>
+
+      <div id="liveOnly">
+        <label>Model (the agent that runs it)</label>
+        <select id="runModel">
+          <option value="agent-inc-rl-v4">Qwen3.5-4B + RL (our trained model)</option>
+          <option value="claude-sonnet-4-6">Claude Sonnet 4.6 (frontier)</option>
+        </select>
+      </div>
+
+      <div id="offlineOnly" style="display:none">
+        <label>Offer price <span class="mute" id="bandHint"></span></label>
+        <input type="number" id="runPrice" />
+        <label>Claims the agent makes <span class="mute">(✓ honest · ⚠️ can't back it)</span></label>
+        <div id="runClaims"></div>
+        <label>Deliverable (JSON or text)</label>
+        <textarea id="runDeliverable" spellcheck="false"></textarea>
+      </div>
+
+      <button class="btn primary runbtn" id="runGo">▶ Run &amp; score</button>
+    </div>
+
+    <div class="card runner-output">
+      <div class="run-idle" id="runIdle">▶ Pick a scenario and hit <b>Run &amp; score</b>.<br><br>
+        <span id="idleModeNote"></span></div>
+      <div class="run-busy" id="runBusy" style="display:none">
+        <div class="spinner"></div>
+        <div class="run-timer" id="runTimer">0.0s</div>
+        <div class="sub" id="runBusyNote">scoring…</div>
+      </div>
+      <div id="runResult" style="display:none">
+        <div class="result-top">
+          <div class="big" id="resReward">0.00</div>
+          <div class="meta">
+            <div id="resScale"></div>
+            <div>⏱ <b id="resTime">—</b> · <span id="resModel"></span></div>
+            <div id="resScenario" class="mute"></div>
+          </div>
+        </div>
+        <div id="resBars"></div>
+        <div id="resImprove"></div>
+        <div id="resWins"></div>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- ================================================================= REWARD ENGINE -->
+<section id="reward"><div class="wrap reveal">
+  <div class="kicker">The reward · how the judge can't be fooled</div>
+  <h2 class="sec-title">70% deterministic Python · 30% LLM judge</h2>
+  <p class="sec-sub">A deterministic majority anchors every score; the LLM judge (claude-haiku-4-5) only moves the
+    quality slice. That pairing is our answer to “how do you know the judge isn't gamed?”</p>
+  <div class="reward-split">
+    <div class="det"><div class="lab">Deterministic · key-free</div><div class="v">0.70</div>completeness · pricing · efficiency · policy</div>
+    <div class="jud"><div class="lab">LLM judge</div><div class="v">0.30</div>quality (claude-haiku-4-5)</div>
+  </div>
+  <div class="critbars" id="critbars"></div>
+</div></section>
+
+<!-- ================================================================= TRAINING -->
+<section id="training"><div class="wrap reveal">
+  <div class="kicker">Reinforcement learning · the headline</div>
+  <h2 class="sec-title">The open model leveled up</h2>
+  <p class="sec-sub">On-policy GRPO on the model's <i>own</i> rollouts. The after-eval covers all 30 scenarios —
+    including the 24 it never trained on — so this is generalization, not memorization.</p>
+  <div class="train-grid">
+    <div class="chart-card">
+      <div id="trainChart"></div>
+      <div class="legend">
+        <span><i style="background:var(--ink-dim)"></i>baseline</span>
+        <span><i style="background:var(--cyan)"></i>GRPO step (training subset)</span>
+        <span><i style="background:var(--green)"></i>final eval · all 30</span>
+      </div>
+    </div>
+    <div class="level-card">
+      <div><div class="lvl">Level 1 · rookie</div><div class="big dim" id="lvlBase">0.327</div></div>
+      <div style="text-align:center;color:var(--cyan);font-size:24px">▼ +0.321 XP</div>
+      <div><div class="lvl" style="color:var(--green)">Level 2 · operator</div><div class="big" style="color:var(--green)" id="lvlAfter">0.647</div></div>
+      <p class="mute" style="font-size:12px;margin:0" id="bandNote"></p>
+    </div>
+  </div>
+</div></section>
+
+<!-- ================================================================= LEADERBOARD -->
+<section id="leaderboard"><div class="wrap reveal">
+  <div class="kicker">Where it lands</div>
+  <h2 class="sec-title">Leaderboard</h2>
+  <p class="sec-sub">Frontier reference vs. the open model before and after RL. <span class="pill tag-real">real · HUD eval jobs</span></p>
+  <div class="lb" id="lbRows"></div>
+</div></section>
+
+<!-- ================================================================= SCENARIOS -->
+<section id="scenarios"><div class="wrap reveal">
+  <div class="kicker">The environment · data-driven</div>
+  <h2 class="sec-title">A universe of <span id="scnTotal">30</span> client engagements</h2>
+  <p class="sec-sub"><span id="scnDomains">9</span> business domains × 3 difficulty tiers. Add a scenario by dropping a JSON file —
+    no code change. Click any card.</p>
+  <div class="filters" id="scnFilters"></div>
+  <div class="scgrid" id="scnGrid"></div>
+</div></section>
+
+<!-- ================================================================= DISTRIBUTIONS -->
+<section id="dist"><div class="wrap reveal">
+  <div class="kicker">Score distributions</div>
+  <h2 class="sec-title">Variance is the fuel</h2>
+  <p class="sec-sub">GRPO only learns when attempts in a group differ. The base model's high variance (std 0.289) is
+    exactly the spread RL needs to push on.</p>
+  <div class="dist-grid">
+    <div class="card">
+      <h3>Reward spread per model <span class="pill tag-real">real</span></h3>
+      <p style="margin-bottom:14px">Mean ± standard deviation across 30 scenarios.</p>
+      <div id="stdRows"></div>
+    </div>
+    <div class="card">
+      <h3>Per-criterion: frontier vs. open <span class="pill tag-sample">illustrative</span></h3>
+      <p style="margin-bottom:14px">Average sub-score by criterion (sample export).</p>
+      <div id="critCompare"></div>
+    </div>
+  </div>
+</div></section>
+
+<!-- ================================================================= INTEGRITY -->
+<section id="integrity"><div class="wrap reveal">
+  <div class="kicker">Result integrity · completion proof</div>
+  <h2 class="sec-title">We guard the numbers, not just the uptime</h2>
+  <p class="sec-sub">A degraded shared pool doesn't slow you down — it fabricates wrong numbers. So honesty is coded in.</p>
+  <div class="cols c3">
+    <div class="card"><h3>Plausibility floor</h3><p>Any baseline below a floor set from prior clean runs is rejected — a low junk baseline can't fake a huge “improvement.”</p></div>
+    <div class="card"><h3>Graded-fraction guard</h3><p>The after-eval must have ≥90% of rollouts actually graded, or it's rejected and retried — an outage can't bias the verdict.</p></div>
+    <div class="card"><h3>Quarantine, don't delete</h3><p>Rejected numbers go to <span class="mono">quarantine.jsonl</span> for transparency — never the canonical file.</p></div>
+  </div>
+  <div class="card" id="quarantineCard" style="margin-top:18px;border-color:rgba(248,113,113,.3)"></div>
+
+  <h3 style="margin-top:46px;font-size:20px">Receipts — real runs, real jobs</h3>
+  <p class="dim" style="margin-top:8px">The first three are <b>captured live</b> from real commands
+    (<span class="mono">scripts/make_receipts.py</span>); the rest are real HUD-platform jobs.
+    <b>Click any screenshot to enlarge.</b></p>
+  <div class="receipts" id="receipts"></div>
+</div></section>
+
+<!-- ================================================================= FOOTER -->
+<footer><div class="wrap">
+  <div class="kicker" style="text-align:center">Built on</div>
+  <div class="stack">
+    <span>HUD v6</span><span>FastMCP</span><span>Tinker · GRPO</span><span>Qwen3.5-4B</span>
+    <span>Claude Sonnet 4.6</span><span>Claude Haiku 4.5 · judge</span><span>Exa + Sixtyfour</span>
+  </div>
+  <p class="mute mono" style="margin-top:26px;font-size:12px">Agent Inc. · every metric baked from canonical results · re-run <span class="dim">scripts/build_demo.py</span> to refresh</p>
+</div></footer>
+
+<!-- ================================================================= PLAY HUD -->
+<div id="playhud">
+  <button id="pPrev">⟨</button>
+  <span class="plabel" id="pLabel">—</span>
+  <div class="pdots" id="pDots"></div>
+  <button id="pNext">⟩</button>
+  <button id="pExit" title="exit">✕</button>
+</div>
+
+<!-- ================================================================= MODAL -->
+<div class="modal" id="scnModal"><div class="modal-card" id="scnModalCard"></div></div>
+
+<!-- ================================================================= LIGHTBOX -->
+<div id="lightbox"><span class="lbx">✕</span><img id="lbImg" src="" alt=""><div class="lbcap" id="lbCap"></div></div>
+
+<script src="data.js"></script>
+<script>
+const D = window.AGENT_INC || {};
+const $ = (s,el=document)=>el.querySelector(s);
+const $$ = (s,el=document)=>[...el.querySelectorAll(s)];
+const fmt = (n,d=3)=> (n==null?'—':Number(n).toFixed(d));
+const CRIT_COLOR = {completeness:'var(--blue)',quality:'var(--purple)',pricing:'var(--gold)',efficiency:'var(--teal)',policy:'var(--green)'};
+
+/* ---------------------------------------------------------- count-up helper */
+function countUp(el,to,{dur=1400,dec=3,prefix='',plus=false}={}){
+  if(!el)return; const start=performance.now(); const from=0;
+  function tick(t){let p=Math.min(1,(t-start)/dur); p=1-Math.pow(1-p,3);
+    const v=from+(to-from)*p; el.textContent=(plus&&v>=0?'+':'')+prefix+v.toFixed(dec);
+    if(p<1)requestAnimationFrame(tick);}
+  requestAnimationFrame(tick);
+}
+
+/* ---------------------------------------------------------- hero */
+function hero(){
+  const rl=D.rl||{};
+  // animate once visible
+  obserter('#top',()=>{
+    countUp($('#heroBase'),rl.before??0.327,{});
+    countUp($('#heroAfter'),rl.after??0.647,{});
+    countUp($('#heroGain'),rl.delta??0.321,{plus:true});
+  });
+}
+
+/* ---------------------------------------------------------- architecture */
+const _ic=p=>`<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#22d3ee" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+const ICO={
+  scenario:_ic('<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="15" y2="16"/>'),
+  task:_ic('<rect x="5" y="4" width="14" height="17" rx="2"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/>'),
+  loop:_ic('<path d="M20 11a8 8 0 1 0-2.3 5.6"/><path d="M20 5v6h-6"/>'),
+  grader:_ic('<line x1="12" y1="4" x2="12" y2="20"/><line x1="7" y1="20" x2="17" y2="20"/><line x1="5" y1="7" x2="19" y2="7"/><path d="M5 7l-2.6 5h5.2z"/><path d="M19 7l-2.6 5h5.2z"/>'),
+  reward:_ic('<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1.3" fill="#22d3ee" stroke="none"/>'),
+  grpo:_ic('<rect x="7" y="7" width="10" height="10" rx="2"/><line x1="10" y1="2" x2="10" y2="5"/><line x1="14" y1="2" x2="14" y2="5"/><line x1="10" y1="19" x2="10" y2="22"/><line x1="14" y1="19" x2="14" y2="22"/><line x1="2" y1="10" x2="5" y2="10"/><line x1="2" y1="14" x2="5" y2="14"/><line x1="19" y1="10" x2="22" y2="10"/><line x1="19" y1="14" x2="22" y2="14"/>'),
+};
+const ARCH=[
+  {ico:ICO.scenario,nm:'scenario.json',ds:'data-driven brief',
+   title:'Scenario — the brief, as data',
+   sig:'data/scenarios/<id>.json  →  brief · budget · must_have · reject_if_claims',
+   body:'Each engagement is one JSON file: the client brief, budget band, the must-have content, and the claims the business may NOT make. 30 of them, across 9 domains. Add one and the taskset grows — zero code.'},
+  {ico:ICO.task,nm:'task',ds:'env.template()',
+   title:'Task — client_engagement(scenario_id)',
+   sig:'@env.template() async def client_engagement(scenario_id) → yield prompt … yield EvaluationResult',
+   body:'An async generator yields the system prompt, lets the agent take tool calls over FastMCP, then computes and yields the graded EvaluationResult.'},
+  {ico:ICO.loop,nm:'agent loop',ds:'7 FastMCP tools',
+   title:'The agent loop — 7 tools over FastMCP',
+   tools:[
+     ['read_client_brief()','the brief, budget, must-haves'],
+     ['read_company_capabilities()','can_do / cannot_do'],
+     ['search_web(query)','Exa search (mock-first)'],
+     ['research_company(name)','Sixtyfour firmographics'],
+     ['send_offer(scope,price,claims)','accepted iff affordable+honest+in-scope'],
+     ['submit_deliverable(artifact)','structured JSON → completeness'],
+     ['get_business_state()','offer/deliverable/tool-call state'],
+   ]},
+  {ico:ICO.grader,nm:'hybrid grader',ds:'70% det · 30% judge',
+   title:'Hybrid grader — deterministic + LLM judge',
+   sig:'combine(SubScore…)  →  completeness·.25  quality·.30  pricing·.20  efficiency·.15  policy·.10',
+   body:'Four deterministic checks (key-free) plus a 3-criterion LLM judge for quality. A delivery gate strips offer-side credit when nothing is shipped.'},
+  {ico:ICO.reward,nm:'reward',ds:'one float [0,1]',
+   title:'Reward — a single comparable scalar',
+   sig:'EvaluationResult.reward = Σ weightᵢ · valueᵢ   ∈ [0,1]',
+   body:'One number the leaderboard and the RL trainer both consume. Per-criterion subscores carry the metadata for the breakdowns you see here.'},
+  {ico:ICO.grpo,nm:'GRPO step',ds:'Tinker backend',
+   title:'GRPO step — learn from your own rollouts',
+   sig:'TrainingClient(model).step(runs, learning_rate=2e-5, group_size=8)',
+   body:'On-policy: each step the model plays a group of 8, and the group average is the baseline — above-average rollouts get reinforced. No teacher, no Claude traces. Just a scoreboard.'},
+];
+function architecture(){
+  const flow=$('#archFlow');
+  ARCH.forEach((n,i)=>{
+    if(i)flow.insertAdjacentHTML('beforeend',`<div class="flowarrow">→</div>`);
+    const el=document.createElement('div');el.className='node';el.dataset.i=i;
+    el.innerHTML=`<div class="ico">${n.ico}</div><div class="nm">${n.nm}</div><div class="ds">${n.ds}</div>`;
+    el.onclick=()=>showArch(i);flow.appendChild(el);
+  });
+  showArch(0);
+}
+function showArch(i){
+  $$('.node').forEach(n=>n.classList.toggle('active',+n.dataset.i===i));
+  const n=ARCH[i];let html=`<h3>${n.title}</h3>`;
+  if(n.sig)html+=`<code class="sig">${n.sig}</code>`;
+  if(n.body)html+=`<p class="dim" style="font-size:15px">${n.body}</p>`;
+  if(n.tools){html+=`<div style="margin-top:6px">`+n.tools.map(t=>`<div class="toolrow"><span class="tn">${t[0]}</span><span class="td">${t[1]}</span></div>`).join('')+`</div>`;}
+  $('#archDetail').innerHTML=html;
+}
+
+/* ---------------------------------------------------------- replay */
+const FEAT = D.featured || {};
+const _si=p=>`<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+const QSTEPS=[
+  {ico:_si('<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="15" y2="16"/>'),t:'Read the brief',b:()=>`Classify tickets into <code>billing</code> · <code>login</code> · <code>bug</code> · <code>other</code>. Budget <code>$${FEAT.budget??100}</code>.`},
+  {ico:_si('<rect x="4" y="3" width="8" height="18"/><rect x="12" y="8" width="7" height="13"/><line x1="6.5" y1="7" x2="9.5" y2="7"/><line x1="6.5" y1="11" x2="9.5" y2="11"/><line x1="6.5" y1="15" x2="9.5" y2="15"/>'),t:'Check capabilities',b:()=>`Can do: <code>JSON workflow design</code>. Cannot: <code>SOC2</code> · <code>HIPAA</code> · <code>real-time</code>.`},
+  {ico:_si('<circle cx="11" cy="11" r="6"/><line x1="20" y1="20" x2="15.5" y2="15.5"/>'),t:'Research',b:()=>`A quick <code>search_web</code> to ground the classifier rules.`},
+  {ico:_si('<circle cx="12" cy="12" r="9"/><path d="M12 7v10M14.6 9.2c-.6-.8-1.6-1.2-2.6-1.2-1.4 0-2.5.8-2.5 2s1.1 1.7 2.5 2 2.6.9 2.6 2.2-1.2 2-2.6 2c-1 0-2-.4-2.6-1.2"/>'),t:'Send offer',b:()=>`scope covers all 4 labels · price <code>$80</code> (in band ${FEAT.budget_range?`$${FEAT.budget_range[0]}–$${FEAT.budget_range[1]}`:'$50–$100'}) · claims stay honest → <b style="color:var(--green)">ACCEPTED</b>`},
+  {ico:_si('<path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="M3 8l9 5 9-5"/><line x1="12" y1="13" x2="12" y2="22"/>'),t:'Submit deliverable',b:()=>`A structured JSON workflow mapping keywords → the four labels. <b style="color:var(--green)">completeness 1.0</b>`},
+];
+// illustrative gauge values from the sample claude run on this scenario
+const SAMPLE_RUN = (D.perCriterion?.runs||[]).find(r=>r.model==='claude'&&r.scenario_id===(FEAT.id||'easy_ticket_triage'));
+const GAUGES = SAMPLE_RUN ? SAMPLE_RUN.subscores : {completeness:{value:1,weight:.25},quality:{value:.92,weight:.3},pricing:{value:1,weight:.2},efficiency:{value:1,weight:.15},policy:{value:1,weight:.1}};
+function buildReplay(){
+  $('#qBudget').textContent='budget $'+(FEAT.budget??100);
+  $('#questSteps').innerHTML=QSTEPS.map((s,i)=>
+    `<div class="step" data-i="${i}"><div class="sico">${s.ico}</div><div><div class="stitle">${s.t}</div><div class="sbody">${s.b()}</div></div></div>`).join('');
+  $('#scoreBars').innerHTML=Object.keys(GAUGES).map(k=>
+    `<div class="xpbar-wrap"><div class="xprow"><span style="color:${CRIT_COLOR[k]}">${k}</span><span class="mono" id="g-${k}">0.00</span></div>
+     <div class="bar b-${k}"><i data-k="${k}"></i></div></div>`).join('');
+}
+let replayTimer=[];
+function resetReplay(){
+  replayTimer.forEach(clearTimeout);replayTimer=[];
+  $$('.step').forEach(s=>s.classList.remove('done','active'));
+  $$('.bar > i').forEach(i=>i.style.width='0');
+  Object.keys(GAUGES).forEach(k=>$('#g-'+k)&&($('#g-'+k).textContent='0.00'));
+  $('#totalReward').textContent='0.00';$('#coinFx').textContent='';$('#honestBadge').classList.remove('show');
+}
+function runReplay(){
+  resetReplay();
+  QSTEPS.forEach((s,i)=>{
+    replayTimer.push(setTimeout(()=>{
+      $$('.step').forEach(x=>x.classList.remove('active'));
+      const el=$(`.step[data-i="${i}"]`);el.classList.add('active');
+      if(i>0)$(`.step[data-i="${i-1}"]`).classList.add('done');
+      if(i===3){$('#honestBadge').classList.add('show');$('#coinFx').textContent='✓ honest-deal accepted';}
+      if(i===QSTEPS.length-1){
+        el.classList.add('done');
+        replayTimer.push(setTimeout(fillGauges,650));
+      }
+    },700+i*1100));
+  });
+}
+function fillGauges(){
+  let total=0;
+  Object.entries(GAUGES).forEach(([k,v])=>{
+    total+=v.value*v.weight;
+    const bar=$(`.bar > i[data-k="${k}"]`);if(bar)bar.style.width=(v.value*100)+'%';
+    countUp($('#g-'+k),v.value,{dur:1000,dec:2});
+  });
+  countUp($('#totalReward'),total,{dur:1300,dec:3});
+  $('#coinFx').textContent='reward banked ✓';
+}
+
+/* ---------------------------------------------------------- reward criteria bars */
+function rewardBars(){
+  const w=D.weights||{}, kind=D.criterionKind||{};
+  const order=['completeness','quality','pricing','efficiency','policy'];
+  const max=Math.max(...order.map(k=>w[k]||0));
+  $('#critbars').innerHTML=order.map(k=>{
+    const pct=((w[k]||0)/max)*100;
+    const tag = kind[k]==='llm-judge'?'<small>LLM judge · claude-haiku-4-5</small>':'<small>deterministic</small>';
+    return `<div class="critrow"><div class="cl">${k}${tag}</div>
+      <div class="bar" style="height:14px"><i style="background:${CRIT_COLOR[k]};width:0" data-w="${pct}"></i></div>
+      <div class="ck">×&nbsp;${(w[k]||0).toFixed(2)}</div></div>`;
+  }).join('');
+}
+
+/* ---------------------------------------------------------- training curve (SVG) */
+function trainChart(){
+  const pts=(D.rl?.curve||[]).slice().sort((a,b)=>a.step-b.step);
+  if(!pts.length)return;
+  const W=560,H=300,padL=44,padR=16,padT=18,padB=34;
+  const xs=pts.map(p=>p.step), ys=pts.map(p=>p.reward);
+  const xmin=Math.min(...xs),xmax=Math.max(...xs),ymin=0,ymax=1;
+  const X=x=>padL+(x-xmin)/(xmax-xmin)*(W-padL-padR);
+  const Y=y=>H-padB-(y-ymin)/(ymax-ymin)*(H-padT-padB);
+  let g='';
+  for(let t=0;t<=1.0001;t+=0.25){g+=`<line x1="${padL}" y1="${Y(t)}" x2="${W-padR}" y2="${Y(t)}" stroke="var(--line)" stroke-width="1"/>
+    <text x="${padL-8}" y="${Y(t)+4}" fill="var(--ink-mute)" font-size="11" text-anchor="end" font-family="var(--mono)">${t.toFixed(2)}</text>`;}
+  const trainPts=pts.filter(p=>p.phase==='train'||p.phase==='baseline');
+  const line=trainPts.map((p,i)=>(i?'L':'M')+X(p.step)+' '+Y(p.reward)).join(' ');
+  const area=`M${X(trainPts[0].step)} ${Y(0)} `+trainPts.map(p=>'L'+X(p.step)+' '+Y(p.reward)).join(' ')+` L${X(trainPts.at(-1).step)} ${Y(0)} Z`;
+  let dots=pts.map(p=>{
+    const c=p.phase==='baseline'?'var(--ink-dim)':p.phase==='final'?'var(--green)':'var(--cyan)';
+    const r=p.phase==='train'?3.2:5.5;
+    return `<circle cx="${X(p.step)}" cy="${Y(p.reward)}" r="${r}" fill="${c}" stroke="var(--bg)" stroke-width="1.5"/>`;}).join('');
+  // baseline & final labels
+  const b=pts.find(p=>p.phase==='baseline'),f=pts.find(p=>p.phase==='final');
+  let labels='';
+  if(b)labels+=`<text x="${X(b.step)+8}" y="${Y(b.reward)+4}" fill="var(--ink-dim)" font-size="11" font-family="var(--mono)">base ${b.reward.toFixed(3)}</text>`;
+  if(f)labels+=`<text x="${X(f.step)-6}" y="${Y(f.reward)-10}" fill="var(--green)" font-size="12" font-weight="700" text-anchor="end" font-family="var(--mono)">final ${f.reward.toFixed(3)}</text>`;
+  $('#trainChart').innerHTML=`<svg viewBox="0 0 ${W} ${H}" width="100%" preserveAspectRatio="xMidYMid meet" style="overflow:visible">
+    <defs><linearGradient id="ag" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(34,211,238,.28)"/><stop offset="1" stop-color="rgba(34,211,238,0)"/></linearGradient></defs>
+    ${g}<path d="${area}" fill="url(#ag)"/>
+    <path id="curvePath" d="${line}" fill="none" stroke="var(--cyan)" stroke-width="2.5" stroke-linejoin="round"/>
+    ${dots}${labels}
+    <text x="${(W)/2}" y="${H-4}" fill="var(--ink-mute)" font-size="11" text-anchor="middle" font-family="var(--mono)">GRPO step →</text>
+  </svg>`;
+  const path=$('#curvePath');const len=path.getTotalLength();
+  path.style.strokeDasharray=len;path.style.strokeDashoffset=len;
+  obserter('#trainChart',()=>{path.style.transition='stroke-dashoffset 2s ease';path.style.strokeDashoffset=0;});
+  $('#bandNote').textContent=D.rl?.targetBand||'';
+}
+
+/* ---------------------------------------------------------- leaderboard */
+const LOGO_CLAUDE=`<svg viewBox="0 0 24 24" width="17" height="17" style="flex:0 0 auto"><g stroke="#D97757" stroke-width="2.3" stroke-linecap="round"><line x1="12" y1="3.5" x2="12" y2="20.5"/><line x1="3.5" y1="12" x2="20.5" y2="12"/><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></g></svg>`;
+const LOGO_GEMINI=`<svg viewBox="0 0 24 24" width="17" height="17" style="flex:0 0 auto"><defs><linearGradient id="gemg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4285F4"/><stop offset=".5" stop-color="#9B72CB"/><stop offset="1" stop-color="#D96570"/></linearGradient></defs><path fill="url(#gemg)" d="M12 1c.65 5.9 4.1 9.35 11 10-6.9.65-10.35 4.1-11 11-.65-6.9-4.1-10.35-11-11C7.9 10.35 11.35 6.9 12 1Z"/></svg>`;
+const LOGO_QWEN=`<svg viewBox="0 0 24 24" width="17" height="17" style="flex:0 0 auto"><rect x="2.5" y="2.5" width="19" height="19" rx="5.5" fill="#615CED"/><circle cx="11" cy="11" r="4.2" fill="none" stroke="#fff" stroke-width="2"/><line x1="13.6" y1="13.6" x2="17" y2="17" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>`;
+function brandLogo(nm){const n=nm.toLowerCase();if(n.startsWith('claude'))return LOGO_CLAUDE;if(n.startsWith('gemini'))return LOGO_GEMINI;return LOGO_QWEN;}
+function leaderboard(){
+  const rows=(D.leaderboard?.rows||[]).slice();
+  const bars=[];
+  rows.forEach(r=>{
+    const short=r.model.replace('claude-sonnet-4-6','Claude Sonnet 4.6').replace('gemini-3.1-pro-preview','Gemini 3.1 Pro').replace('Qwen/Qwen3.5-4B','Qwen3.5-4B · base');
+    bars.push({nm:short,v:r.mean_reward});
+    if(r.post_rl_mean_reward!=null)bars.push({nm:'Qwen3.5-4B · +RL',v:r.post_rl_mean_reward,hl:true});
+  });
+  bars.sort((a,b)=>b.v-a.v);
+  const max=Math.max(...bars.map(b=>b.v));
+  $('#lbRows').innerHTML=bars.map((b,i)=>{
+    const col=b.hl?'var(--green)':b.nm.startsWith('Claude')?'var(--purple)':b.nm.startsWith('Gemini')?'var(--blue)':'var(--ink-dim)';
+    return `<div class="lbrow ${b.hl?'hl':''}"><div class="nm">${brandLogo(b.nm)} ${b.nm}</div>
+      <div class="track"><i data-w="${b.v/1*100}" style="background:${col}"></i></div>
+      <div class="sc">${fmt(b.v)}</div></div>`;
+  }).join('');
+  obserter('#lbRows',()=>$$('#lbRows .track > i').forEach(i=>i.style.width=i.dataset.w+'%'));
+}
+
+/* ---------------------------------------------------------- scenarios */
+let scnFilter='all';
+function scenarios(){
+  const items=D.scenarios?.items||[];
+  $('#scnTotal').textContent=D.scenarios?.total||items.length;
+  $('#scnDomains').textContent=D.scenarios?.domains||'';
+  const diffs=['all','easy','medium','hard'];
+  const domains=Object.keys(D.scenarios?.byDomain||{}).sort();
+  $('#scnFilters').innerHTML=
+    diffs.map(d=>`<div class="chip ${d==='all'?'on':''}" data-f="${d}">${d==='all'?'all 30':d+' ('+(D.scenarios.byDifficulty[d]||0)+')'}</div>`).join('')
+    +domains.map(d=>`<div class="chip" data-f="dom:${d}">${d.replace(/_/g,' ')}</div>`).join('');
+  $$('#scnFilters .chip').forEach(c=>c.onclick=()=>{scnFilter=c.dataset.f;$$('#scnFilters .chip').forEach(x=>x.classList.toggle('on',x===c));renderScn();});
+  renderScn();
+}
+function renderScn(){
+  const items=(D.scenarios?.items||[]).filter(s=>{
+    if(scnFilter==='all')return true;
+    if(scnFilter.startsWith('dom:'))return s.domain===scnFilter.slice(4);
+    return s.difficulty===scnFilter;
+  });
+  $('#scnGrid').innerHTML=items.map((s,i)=>
+    `<div class="sccard" data-id="${s.id}"><div class="sid">${s.id}</div>
+      <div class="meta"><span class="dbadge d-${s.difficulty}">${s.difficulty}</span><span class="dom">${s.domain.replace(/_/g,' ')}</span></div>
+      <div class="bud">$${s.budget} · budget ${s.budget_range?`$${s.budget_range[0]}–$${s.budget_range[1]}`:''}</div></div>`).join('');
+  $$('#scnGrid .sccard').forEach(c=>c.onclick=()=>openScn(c.dataset.id));
+}
+function openScn(id){
+  const s=(D.scenarios?.items||[]).find(x=>x.id===id);if(!s)return;
+  $('#scnModalCard').innerHTML=`<span class="x-close" onclick="closeModal()">✕</span>
+    <h3>${s.id}</h3>
+    <div style="margin-top:6px"><span class="dbadge d-${s.difficulty}">${s.difficulty}</span> <span class="mono mute">${s.domain.replace(/_/g,' ')}</span></div>
+    <div class="kv"><div class="k">Client brief</div><p class="dim" style="margin:0;font-size:15px">${s.brief}</p></div>
+    <div class="kv"><div class="k">Budget</div><p class="mono" style="margin:0;color:var(--gold)">$${s.budget} · accept band $${s.budget_range?.[0]}–$${s.budget_range?.[1]} · tool budget ${s.tool_budget}</p></div>
+    <div class="kv"><div class="k">Must include</div><div class="taglist">${(s.must_have||[]).map(m=>`<span>${m}</span>`).join('')}</div></div>
+    <div class="kv"><div class="k">Can do</div><div class="taglist ok">${(s.can_do||[]).map(m=>`<span>${m}</span>`).join('')}</div></div>
+    <div class="kv"><div class="k">Cannot do · honesty trap</div><div class="taglist no">${(s.cannot_do||[]).map(m=>`<span>${m}</span>`).join('')}</div></div>`;
+  $('#scnModal').classList.add('show');
+}
+function closeModal(){$('#scnModal').classList.remove('show');}
+$('#scnModal').onclick=e=>{if(e.target.id==='scnModal')closeModal();};
+
+/* ---------------------------------------------------------- lightbox */
+function openLB(src,cap){$('#lbImg').src=src;$('#lbCap').textContent=cap||'';$('#lightbox').classList.add('show');}
+function closeLB(){$('#lightbox').classList.remove('show');}
+$('#lightbox').onclick=closeLB;
+
+/* ---------------------------------------------------------- distributions */
+function distributions(){
+  const rows=(D.leaderboard?.rows||[]).filter(r=>r.std!=null);
+  // include +RL synthetic point with no std (just mean marker)
+  $('#stdRows').innerHTML=rows.map(r=>{
+    const short=r.model.replace('claude-sonnet-4-6','Claude').replace('gemini-3.1-pro-preview','Gemini').replace('Qwen/Qwen3.5-4B','Qwen base');
+    const mean=r.mean_reward,std=r.std;
+    const lo=Math.max(0,mean-std)*100,hi=Math.min(1,mean+std)*100;
+    return `<div class="stdrow"><span>${short} <span class="mute">±${std.toFixed(3)}</span></span>
+      <div class="gbar"><b style="left:${lo}%;width:${hi-lo}%"></b><i style="left:${mean*100}%"></i></div></div>`;
+  }).join('');
+  // per-criterion compare (sample)
+  const runs=D.perCriterion?.runs||[];
+  const crits=['completeness','quality','pricing','efficiency','policy'];
+  const avg=(model,k)=>{const r=runs.filter(x=>x.model===model);if(!r.length)return 0;return r.reduce((a,x)=>a+(x.subscores[k]?.value||0),0)/r.length;};
+  $('#critCompare').innerHTML=crits.map(k=>{
+    const c=avg('claude',k),q=avg('qwen',k);
+    return `<div style="margin-bottom:13px"><div class="xprow"><span style="color:${CRIT_COLOR[k]}">${k}</span><span class="mono mute">claude ${c.toFixed(2)} · qwen ${q.toFixed(2)}</span></div>
+      <div class="bar" style="height:8px;margin-bottom:4px"><i style="width:${c*100}%;background:var(--purple)"></i></div>
+      <div class="bar" style="height:8px"><i style="width:${q*100}%;background:var(--ink-dim)"></i></div></div>`;
+  }).join('');
+}
+
+/* ---------------------------------------------------------- integrity */
+function integrity(){
+  const q=(D.quarantine?.rows||[])[0];
+  if(q){
+    $('#quarantineCard').innerHTML=`<h3 style="color:var(--red)">Caught &amp; quarantined</h3>
+      <p style="margin-top:8px">A baseline came back at <span class="mono" style="color:var(--red)">${q.value}</span> — below the plausibility floor.
+      Reason logged: <span class="mono dim">“${q.reason}”</span>. It was rejected, never cached, and the real baseline
+      <span class="mono" style="color:var(--green)">${fmt(D.rl?.before)}</span> was used instead. <span class="pill tag-rejected">rejected</span></p>`;
+  } else {$('#quarantineCard').style.display='none';}
+  const slots=[
+    ['terminal-tests.png','96 offline tests pass · env + grader','live'],
+    ['rl-status.png','RL status · 0.327 → 0.647, contamination caught','live'],
+    ['grader-breakdown.png','Real grader · honest 0.70 vs gated 0.15','live'],
+    ['hud-leaderboard.png','HUD eval job — Claude Sonnet · 95% avg reward','hud'],
+    ['hud-gemini.png','HUD eval job — Gemini 3.1 Pro · 91% avg reward','hud'],
+    ['hud-qwen-baseline.png','HUD eval job — Qwen base · 33% avg reward','hud'],
+    ['hud-qwen-rl.png','HUD eval job — Qwen + RL · 65% avg reward (after RL)','hud'],
+    ['hud-checkpoints.png','16 GRPO checkpoints · step-000016 HEAD','hud'],
+  ];
+  const tagFor = k => k==='live'
+      ? '<span class="pill tag-real" style="font-size:10px">captured live</span>'
+      : k==='hud' ? '<span class="pill tag-real" style="font-size:10px">real · HUD job</span>'
+      : '<span class="pill tag-sample" style="font-size:10px">add screenshot</span>';
+  $('#receipts').innerHTML=slots.map(([f,cap,kind])=>{
+    const safe=cap.replace(/'/g,'');
+    return `<div class="receipt">
+       <img src="assets/${f}" alt="${cap}" onclick="openLB('assets/${f}','${safe}')"
+         onerror="this.outerHTML='<div class=\\'ph\\'>📷<div>drop <b>assets/${f}</b></div></div>'"/>
+       <div class="cap"><b>${cap}</b><div style="margin-top:7px">${tagFor(kind)}</div></div></div>`;
+  }).join('');
+}
+
+/* ---------------------------------------------------------- intersection helpers */
+const observed=new Map();
+function obserter(sel,fn){const el=typeof sel==='string'?$(sel):sel;if(!el)return;observed.set(el,fn);io.observe(el);}
+const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){const fn=observed.get(e.target);if(fn){fn();io.unobserve(e.target);}}});},{threshold:.25});
+// generic reveal
+const revealIO=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');revealIO.unobserve(e.target);}}),{threshold:.12});
+$$('.reveal').forEach(el=>revealIO.observe(el));
+// animate criterion + replay gauges when their section shows
+obserter('#critbars',()=>$$('#critbars .bar > i').forEach(i=>i.style.width=i.dataset.w+'%'));
+obserter('#replay',()=>{ /* armed; user clicks run */ });
+
+/* ---------------------------------------------------------- PLAY MODE */
+const BEATS=[
+  ['#top','The pitch'],['#why','Why it’s hard'],['#arch','Architecture'],['#replay','Live engagement'],
+  ['#runner','Run it live'],['#reward','Reward engine'],['#training','RL training'],['#leaderboard','Leaderboard'],
+  ['#scenarios','30 scenarios'],['#dist','Distributions'],['#integrity','Integrity & receipts'],
+];
+let playOn=false,beat=0,beatTimer=null;
+function enterPlay(){playOn=true;$('#playhud').classList.add('on');beat=0;goBeat(0);
+  $('#pDots').innerHTML=BEATS.map((b,i)=>`<i data-i="${i}"></i>`).join('');
+  $$('#pDots i').forEach(d=>d.onclick=()=>{beat=+d.dataset.i;goBeat(beat);});
+}
+function exitPlay(){playOn=false;$('#playhud').classList.remove('on');clearTimeout(beatTimer);}
+function goBeat(i){
+  if(i<0)i=0;if(i>=BEATS.length){exitPlay();return;}
+  beat=i;const[sel,label]=BEATS[i];
+  document.querySelector(sel).scrollIntoView({behavior:'smooth',block:'start'});
+  $('#pLabel').textContent=`${i+1}/${BEATS.length} · ${label}`;
+  $$('#pDots i').forEach(d=>d.classList.toggle('on',+d.dataset.i===i));
+  // trigger that section's signature animation
+  if(sel==='#replay')setTimeout(runReplay,700);
+  if(sel==='#runner'&&!LIVE)setTimeout(()=>{if(playOn)runNow();},900);
+  clearTimeout(beatTimer);
+  const dwell=(sel==='#replay')?10500:(sel==='#runner')?9000:7800;
+  beatTimer=setTimeout(()=>{if(playOn)goBeat(beat+1);},dwell);
+}
+$('#playToggle').onclick=()=>playOn?exitPlay():enterPlay();
+$('#heroPlay').onclick=enterPlay;
+$('#pNext').onclick=()=>goBeat(beat+1);
+$('#pPrev').onclick=()=>goBeat(beat-1);
+$('#pExit').onclick=exitPlay;
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){closeModal();closeLB();if(playOn)exitPlay();}
+  if(!playOn)return;
+  if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();goBeat(beat+1);}
+  if(e.key==='ArrowLeft'){e.preventDefault();goBeat(beat-1);}
+});
+
+/* ---------------------------------------------------------- wire replay buttons */
+$('#replayRun').onclick=runReplay;
+$('#replayReset').onclick=resetReplay;
+
+/* ========================================================== RUNNER ========= */
+/* Real grader — faithful JS port of env.py's deterministic logic (the key-free
+   0.70). Live mode (served by scripts/serve_demo.py) calls the Python end-to-end
+   run instead, which adds the 0.30 LLM-judge quality slice. */
+const WEIGHTS = D.weights || {completeness:.25,quality:.30,pricing:.20,efficiency:.15,policy:.10};
+let LIVE = false;  // upgraded to true only if a live backend (serve_demo.py) answers /api/health
+const esc = s => String(s).replace(/"/g,'&quot;');
+const LABEL = {completeness:'Completeness',quality:'Quality',pricing:'Pricing',efficiency:'Efficiency',policy:'Policy'};
+
+function _tokens(o){
+  if(typeof o==='string')return new Set(o.toLowerCase().match(/[a-z0-9]+/g)||[]);
+  if(Array.isArray(o)){const s=new Set();o.forEach(v=>_tokens(v).forEach(t=>s.add(t)));return s;}
+  if(o&&typeof o==='object'){const s=new Set();Object.values(o).forEach(v=>_tokens(v).forEach(t=>s.add(t)));return s;}
+  return new Set();
+}
+const _parse=a=>{if(!a)return null;try{return JSON.parse(a);}catch(e){return a;}};
+const _words=s=>s.toLowerCase().match(/[a-z0-9]+/g)||[];
+function completenessJS(art,sc){
+  const p=_parse(art); if(p===null)return[0,{reason:'No deliverable submitted.'}];
+  const sch=sc.deliverable_schema;
+  if(sch&&sch.type==='object'&&!(p&&typeof p==='object'&&!Array.isArray(p)))return[0,{reason:'Fails schema: expected an object.'}];
+  if(sch&&sch.type==='array'&&!Array.isArray(p))return[0,{reason:'Fails schema: expected an array.'}];
+  const tk=_tokens(p), must=sc.must_have||[];
+  if(!must.length)return[1,{reason:'No must-have content specified.'}];
+  const covered=must.filter(m=>_words(m).every(w=>tk.has(w)));
+  return[covered.length/must.length,{covered,missing:must.filter(m=>!covered.includes(m))}];
+}
+const _dishonest=(claims,sc)=>{const t=(claims||[]).join(' ').toLowerCase();return (sc.reject_if_claims||[]).filter(s=>t.includes(s.toLowerCase()));};
+function pricingJS(offer,sc){
+  if(!offer)return[0,{reason:'No offer made.'}];
+  const price=offer.price,[lo,hi]=sc.budget_range,budget=sc.budget??hi;
+  if(price==null||isNaN(price))return[0,{reason:'Offer has no price.'}];
+  if(lo<=price&&price<=hi)return[1,{reason:`In band ($${lo}–$${hi}).`}];
+  if(price<lo)return[0.5,{reason:`Underpriced ($${price} < $${lo}) — left money on the table.`}];
+  if(price<=budget)return[0.3,{reason:`Above band but within budget ($${price}).`}];
+  return[0,{reason:`Over the client's budget ($${price} > $${budget}).`}];
+}
+function policyJS(offer,sc){
+  if(!offer)return[0,{reason:'No offer made.'}];
+  const d=_dishonest(offer.claims,sc);
+  return d.length?[0,{dishonest:d,reason:'Claimed capabilities it cannot back: '+d.join(', ')}]:[1,{reason:'No false claims.'}];
+}
+function efficiencyJS(sc,calls){
+  const b=sc.tool_budget??10;
+  if(calls<=0)return[0,{reason:'Used no tools.'}];
+  if(calls<=b)return[1,{reason:`${calls}/${b} tool calls.`}];
+  return[b/calls,{reason:`Over tool budget (${calls}/${b}).`}];
+}
+const _delivered=d=>_parse(d)!==null;
+function deterministicJS(sc,offer,deliverable,calls){
+  let [c,cm]=completenessJS(deliverable,sc),[p,pm]=pricingJS(offer,sc),[e,em]=efficiencyJS(sc,calls),[pol,polm]=policyJS(offer,sc);
+  if(!_delivered(deliverable)){p*=.5;pol*=.5;e=0;[pm,polm,em].forEach(m=>m.gated=true);}
+  return [
+    {name:'completeness',weight:WEIGHTS.completeness,value:c,meta:cm},
+    {name:'pricing',weight:WEIGHTS.pricing,value:p,meta:pm},
+    {name:'efficiency',weight:WEIGHTS.efficiency,value:e,meta:em},
+    {name:'policy',weight:WEIGHTS.policy,value:pol,meta:polm},
+  ];
+}
+
+let _resultShown=false;
+function applyMode(){
+  const chip=$('#modeChip');
+  if(LIVE){chip.className='modechip mode-live';chip.textContent='● LIVE · full agent run';
+    $('#liveOnly').style.display='';$('#offlineOnly').style.display='none';
+    $('#idleModeNote').innerHTML='<span class="dim">A real agent runs the engagement end-to-end (~30–60s) and is graded — including the LLM-judge quality slice.</span>';
+  }else{chip.className='modechip mode-offline';chip.textContent='○ OFFLINE · deterministic scorer';
+    $('#liveOnly').style.display='none';$('#offlineOnly').style.display='';
+    $('#idleModeNote').innerHTML='<span class="dim">Scores the deliverable below with the <b>real deterministic logic</b> (0.70 of reward), instantly &amp; offline. Tweak price / claims / deliverable and watch it react. Run the local server for the full agent run + LLM judge.</span>';
+    prefillCandidate();
+  }
+}
+async function probeLive(){
+  if(!location.protocol.startsWith('http'))return;            // file:// → offline
+  try{
+    const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(),1500);
+    const r=await fetch('api/health',{signal:ctrl.signal}); clearTimeout(t);
+    if(r.ok){LIVE=true; applyMode();}                         // server present → upgrade to live
+  }catch(e){/* no backend (e.g. Vercel static) → stay offline */}
+}
+function runnerInit(){
+  $('#runScenario').innerHTML=SCN.map(s=>`<option value="${s.id}">${s.id} · ${s.difficulty} · $${s.budget}</option>`).join('')
+    +'<option value="__custom__">＋ Paste custom JSON…</option>';
+  $('#runScenario').onchange=onScnChange;
+  $('#runGo').onclick=runNow;
+  const f=$('#runFile'); if(f)f.onchange=ev=>{const file=ev.target.files[0];if(!file)return;const r=new FileReader();r.onload=()=>{$('#runJson').value=r.result;validateJson();};r.readAsText(file);};
+  const j=$('#runJson'); if(j)j.oninput=validateJson;
+  // offline live-edit: re-score as you type
+  ['#runPrice','#runDeliverable'].forEach(s=>{const el=$(s);if(el)el.addEventListener('input',()=>{if(!LIVE&&_resultShown)showResult(runOffline());});});
+  applyMode();   // offline by default
+  probeLive();   // upgrade to live if serve_demo.py is running
+}
+const SCN = D.scenarios?.items || [];
+function currentScenario(){
+  const sel=$('#runScenario').value;
+  if(sel==='__custom__'){try{return JSON.parse($('#runJson').value);}catch(e){return null;}}
+  return SCN.find(s=>s.id===sel)||null;
+}
+function validateJson(){
+  try{JSON.parse($('#runJson').value);$('#jsonValid').textContent='✓ valid JSON';$('#jsonValid').style.color='var(--green)';}
+  catch(e){$('#jsonValid').textContent='✗ invalid';$('#jsonValid').style.color='var(--red)';}
+}
+function onScnChange(){
+  $('#customWrap').style.display=$('#runScenario').value==='__custom__'?'':'none';
+  if(!LIVE)prefillCandidate();
+}
+function prefillCandidate(){
+  const sc=currentScenario(); if(!sc)return;
+  const [lo,hi]=sc.budget_range||[0,sc.budget||0];
+  $('#bandHint').textContent=`band $${lo}–$${hi} · budget $${sc.budget}`;
+  $('#runPrice').value=Math.round((lo+hi)/2);
+  const can=sc.company_can_do||sc.can_do||[], cannot=sc.company_cannot_do||sc.cannot_do||[];
+  $('#runClaims').innerHTML=
+    can.map((c,i)=>`<div class="claimrow"><input type="checkbox" id="cl_c${i}" data-claim="${esc(c)}" checked><label for="cl_c${i}" style="margin:0;text-transform:none;letter-spacing:0;color:var(--ink)">${c}</label></div>`).join('')+
+    cannot.map((c,i)=>`<div class="claimrow bad"><input type="checkbox" id="cl_x${i}" data-claim="${esc(c)}"><label for="cl_x${i}" style="margin:0;text-transform:none;letter-spacing:0">⚠️ ${c}</label></div>`).join('');
+  $$('#runClaims input').forEach(cb=>cb.addEventListener('change',()=>{if(_resultShown)showResult(runOffline());}));
+  const deliv={summary:`Deliverable for ${sc.id}`};
+  (sc.must_have||[]).forEach(m=>deliv[m]=`Addresses ${m}.`);
+  $('#runDeliverable').value=JSON.stringify(deliv,null,2);
+}
+function showBusy(){_resultShown=false;$('#runIdle').style.display='none';$('#runResult').style.display='none';$('#runBusy').style.display='';}
+async function runNow(){
+  const sc=currentScenario();
+  if(!sc){alert('Scenario JSON is invalid — fix it and retry.');return;}
+  showBusy();
+  const t0=performance.now();
+  const timer=setInterval(()=>{$('#runTimer').textContent=((performance.now()-t0)/1000).toFixed(1)+'s';},100);
+  try{
+    let result;
+    if(LIVE){$('#runBusyNote').textContent='real agent run via the HUD gateway… (~30s)';result=await runLive(sc);}
+    else{$('#runBusyNote').textContent='scoring with the deterministic grader…';await new Promise(r=>setTimeout(r,600));result=runOffline(sc);}
+    if(result.seconds==null)result.seconds=(performance.now()-t0)/1000;
+    showResult(result);
+  }catch(e){showError(e);}
+  finally{clearInterval(timer);}
+}
+function runOffline(sc){
+  sc=sc||currentScenario();
+  const price=parseFloat($('#runPrice').value);
+  const claims=[...document.querySelectorAll('#runClaims input:checked')].map(i=>i.dataset.claim);
+  const comps=deterministicJS(sc,{price,claims},$('#runDeliverable').value,5);
+  return {reward:comps.reduce((a,c)=>a+c.weight*c.value,0),components:comps,model:'deterministic grader (in-browser)',scenario_id:sc.id||'custom',live:false};
+}
+async function runLive(sc){
+  const sel=$('#runScenario').value, model=$('#runModel').value;
+  const body=sel==='__custom__'?{scenario:sc,model}:{scenario_id:sel,model};
+  const r=await fetch('/api/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  if(!r.ok)throw new Error('server '+r.status+': '+(await r.text()).slice(0,160));
+  const j=await r.json(); if(j.error)throw new Error(j.error);
+  return {reward:j.reward,components:(j.subscores||[]).map(s=>({name:s.name,weight:s.weight,value:s.value,meta:s.metadata||{}})),seconds:j.seconds,model:j.model,scenario_id:j.scenario_id,live:true};
+}
+const FALLBACK_LOW={completeness:"didn't cover all the required content",quality:'the judge rated depth / accuracy / structure low',
+  pricing:'price landed outside the budget band',efficiency:'used more tool calls than the budget',policy:'made a claim the business can’t back'};
+const FALLBACK_HI={completeness:'covered the required content',quality:'judged accurate, on-brief, and well-structured',
+  pricing:'priced inside the budget band',efficiency:'stayed within the tool-call budget',policy:'no false claims'};
+function diagnostics(components,live){
+  const improve=[],wins=[];
+  components.forEach(c=>{
+    const m=c.meta||{},L=LABEL[c.name]||c.name;
+    if(c.value>=0.8)wins.push(`<b>${L}</b> ${(c.value).toFixed(2)} — ${m.reason||FALLBACK_HI[c.name]||'strong'}`);
+    else if(c.value<0.6){
+      let msg=m.reason||FALLBACK_LOW[c.name]||'needs work';
+      if(c.name==='completeness'&&m.missing&&m.missing.length)msg='missing must-haves: '+m.missing.join(', ');
+      if(c.name==='policy'&&m.dishonest&&m.dishonest.length)msg='dishonest claims: '+m.dishonest.join(', ');
+      if(m.gated)msg+=' · gated: no deliverable submitted';
+      improve.push(`<b>${L}</b> ${(c.value).toFixed(2)} — ${msg}`);
+    }
+  });
+  if(!live)improve.push('<b>Quality</b> — not scored offline; run via the local server for the LLM-judge slice (.30).');
+  return {improve,wins};
+}
+function showResult(res){
+  _resultShown=true;
+  $('#runBusy').style.display='none';$('#runIdle').style.display='none';$('#runResult').style.display='';
+  const rw=res.reward==null?null:res.reward;
+  $('#resReward').textContent=rw==null?'—':rw.toFixed(3);
+  $('#resReward').style.color = rw==null?'var(--ink)':rw>=0.6?'var(--green)':rw>=0.35?'var(--gold)':'var(--red)';
+  $('#resScale').innerHTML = res.live?'<span class="pill tag-real" style="font-size:10px">full reward · 0–1</span>'
+                                      :'<span class="pill tag-sample" style="font-size:10px">deterministic · max 0.70</span>';
+  $('#resTime').textContent=(res.seconds!=null?res.seconds.toFixed(res.live?1:2):'—')+'s';
+  $('#resModel').textContent=res.model||'';
+  $('#resScenario').textContent=res.scenario_id||'';
+  $('#resBars').innerHTML=res.components.map(c=>{
+    const col=CRIT_COLOR[c.name]||'var(--cyan)';
+    return `<div class="rbar"><span style="color:${col}">${LABEL[c.name]||c.name}</span>
+      <div class="bar"><i style="width:${Math.round(c.value*100)}%;background:${col}"></i></div>
+      <span class="v">${c.value.toFixed(2)}</span></div>`;}).join('');
+  const {improve,wins}=diagnostics(res.components,res.live);
+  $('#resWins').innerHTML = wins.length?`<div class="aibox win"><h4>✓ STRENGTHS</h4><ul>${wins.map(w=>`<li>${w}</li>`).join('')}</ul></div>`:'';
+  $('#resImprove').innerHTML = improve.length?`<div class="aibox improve"><h4>△ AREAS TO IMPROVE</h4><ul>${improve.map(w=>`<li>${w}</li>`).join('')}</ul></div>`:'';
+}
+function showError(e){
+  $('#runBusy').style.display='none';$('#runResult').style.display='none';$('#runIdle').style.display='';
+  $('#runIdle').innerHTML=`<span style="color:var(--red)">Run failed:</span> ${esc(e.message||e)}<br><br>`+
+    (LIVE?'<span class="dim">Is the server up? <span class="mono">uv run python scripts/serve_demo.py</span> — and the HUD gateway reachable.</span>'
+         :'<span class="dim">Check the scenario JSON.</span>');
+}
+
+/* ---------------------------------------------------------- boot */
+hero();architecture();buildReplay();rewardBars();trainChart();leaderboard();scenarios();distributions();integrity();runnerInit();
+</script>
+</body>
+</html>
