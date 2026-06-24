@@ -1,0 +1,7 @@
+# Agent Inc. dashboard theme — SpaceX-style monochrome: pure black, white type.
+[theme]
+base = "dark"
+primaryColor = "#FFFFFF"
+backgroundColor = "#000000"
+secondaryBackgroundColor = "#0B0B0B"
+textColor = "#FFFFFF"
